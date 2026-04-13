@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Levitate Logic · Project Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500&family=DM+Mono:wght@500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; background: #F0F3F7; min-height: 100vh; color: #334155; }
+
+    /* Header */
+    .header { background: #0C1A2E; padding: 22px 32px; display: flex; justify-content: space-between; align-items: center; }
+    .header-brand-tag { font-size: 11px; font-weight: 600; color: #0DB87A; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 3px; }
+    .header-title { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; color: #fff; }
+    .header-sub { font-size: 12px; color: #475569; margin-top: 2px; }
+    .admin-btn { display: flex; align-items: center; gap: 7px; border-radius: 8px; padding: 8px 16px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; border: 1px solid #334155; background: transparent; color: #64748B; transition: all .2s; }
+    .admin-btn.active { border-color: #0DB87A55; background: #0DB87A18; color: #0DB87A; }
+
+    /* Body */
+    .body { max-width: 820px; margin: 0 auto; padding: 28px 20px; }
+
+    /* Cards */
+    .card { background: #fff; border-radius: 14px; border: 1px solid #E2ECF5; overflow: hidden; }
+    .card + .card, .card + .phase-card, .phase-card + .phase-card, .phase-card + .card { margin-top: 10px; }
+
+    /* Progress hero */
+    .progress-hero { padding: 28px 30px; margin-bottom: 8px; }
+    .progress-hero-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+    .progress-label { font-size: 12px; font-weight: 600; color: #94A3B8; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px; }
+    .progress-pct { font-family: 'Syne', sans-serif; font-size: 48px; font-weight: 800; line-height: 1; }
+    .status-badge { display: inline-block; border-radius: 20px; padding: 5px 14px; font-size: 12px; font-weight: 700; margin-left: 12px; vertical-align: middle; }
+    .task-count { font-family: 'DM Mono', monospace; font-size: 26px; font-weight: 500; color: #0C1A2E; text-align: right; }
+    .task-count span { font-size: 16px; color: #CBD5E1; }
+    .task-count-label { font-size: 12px; color: #94A3B8; text-align: right; margin-top: 2px; }
+    .bar-track { height: 14px; background: #F0F3F7; border-radius: 7px; overflow: hidden; margin-bottom: 16px; }
+    .bar-fill { height: 100%; border-radius: 7px; transition: width .5s ease; }
+    .phase-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .phase-mini-label { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 11px; }
+    .phase-mini-track { height: 4px; background: #F0F3F7; border-radius: 2px; overflow: hidden; }
+    .phase-mini-fill { height: 100%; border-radius: 2px; transition: width .4s; }
+    .phase-mini-sub { font-size: 11px; color: #94A3B8; margin-top: 4px; }
+
+    /* Phase accordion */
+    .phase-card { background: #fff; border-radius: 14px; border: 1px solid #E2ECF5; overflow: hidden; margin-top: 10px; }
+    .phase-header { display: flex; align-items: center; gap: 14px; padding: 16px 22px; cursor: pointer; transition: background .15s; }
+    .phase-header:hover { background: #FAFBFC; }
+    .phase-name { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: #0C1A2E; }
+    .phase-weeks { font-size: 11px; color: #94A3B8; margin-top: 1px; }
+    .phase-bar-wrap { width: 110px; }
+    .phase-bar-labels { display: flex; justify-content: space-between; margin-bottom: 4px; }
+    .phase-pct { font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; }
+    .chevron { transition: transform .2s; flex-shrink: 0; }
+    .chevron.open { transform: rotate(180deg); }
+
+    /* Task list */
+    .task-list { border-top-width: 1px; border-top-style: solid; }
+    .readonly-notice { display: flex; align-items: center; gap: 5px; padding: 8px 22px 4px; font-size: 11px; color: #94A3B8; }
+    .task-row { display: flex; align-items: flex-start; gap: 12px; padding: 11px 22px; border-bottom: .5px solid #F4F6F9; cursor: default; transition: background .15s; }
+    .task-row.admin-mode { cursor: pointer; }
+    .task-row.admin-mode:hover { background: #F8FAFC; }
+    .checkbox { width: 17px; height: 17px; border-radius: 4px; border: 1.5px solid #E2E8F0; background: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; transition: all .15s; }
+    .checkbox.checked { border-width: 2px; }
+    .task-text { font-size: 13px; color: #334155; line-height: 1.55; flex: 1; transition: color .15s; }
+    .task-text.done { color: #94A3B8; text-decoration: line-through; }
+    .done-badge { flex-shrink: 0; border-radius: 4px; padding: 2px 8px; font-size: 10px; font-weight: 700; }
+
+    /* Activity feed */
+    .feed-header { padding: 16px 22px; border-bottom: 1px solid #F0F3F7; display: flex; justify-content: space-between; align-items: center; }
+    .feed-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: #0C1A2E; }
+    .feed-lock { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #94A3B8; }
+    .feed-list { padding: 16px 22px; display: flex; flex-direction: column; gap: 14px; }
+    .comment-row { display: flex; gap: 12px; }
+    .comment-avatar { width: 32px; height: 32px; border-radius: 50%; background: #0DB87A18; color: #0DB87A; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+    .comment-meta { display: flex; gap: 8px; align-items: baseline; margin-bottom: 5px; }
+    .comment-author { font-weight: 600; font-size: 13px; color: #0C1A2E; }
+    .comment-dot { font-size: 11px; color: #CBD5E1; }
+    .comment-time { font-size: 11px; color: #94A3B8; }
+    .comment-bubble { font-size: 13px; color: #374151; line-height: 1.6; background: #F8FAFC; border-radius: 8px; padding: 10px 14px; border: .5px solid #EAEFF5; }
+    .post-area { border-top: 1px solid #F0F3F7; padding: 14px 22px; }
+    .post-textarea { width: 100%; padding: 10px 14px; border: 1px solid #E2E8F0; border-radius: 8px; font-size: 13px; resize: none; color: #0C1A2E; font-family: 'DM Sans', sans-serif; outline: none; margin-bottom: 10px; }
+    .post-textarea:focus { border-color: #0DB87A; }
+    .post-btn { background: #0C1A2E; color: #fff; border: none; border-radius: 8px; padding: 9px 22px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: opacity .2s; }
+    .post-btn:disabled { background: #F1F5F9; color: #94A3B8; cursor: default; }
+    .footer { text-align: center; margin-top: 22px; font-size: 11px; color: #94A3B8; padding-bottom: 32px; }
+
+    /* Modal overlay */
+    .overlay { position: fixed; inset: 0; background: rgba(12,26,46,.65); z-index: 100; display: flex; align-items: flex-start; justify-content: center; padding-top: 90px; }
+    .modal { background: #fff; border-radius: 16px; padding: 32px 36px; width: 360px; max-width: 90vw; }
+    .modal-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: #0C1A2E; margin-bottom: 6px; }
+    .modal-sub { font-size: 13px; color: #64748B; margin-bottom: 24px; }
+    .modal-input { width: 100%; padding: 11px 14px; border: 1.5px solid #E2E8F0; border-radius: 8px; font-size: 14px; font-family: 'DM Sans', sans-serif; outline: none; margin-bottom: 16px; }
+    .modal-input:focus { border-color: #0DB87A; }
+    .modal-input.error { border-color: #EF4444; margin-bottom: 6px; }
+    .modal-error { font-size: 12px; color: #EF4444; margin-bottom: 14px; }
+    .modal-btns { display: flex; gap: 10px; }
+    .modal-btn-primary { flex: 1; background: #0C1A2E; color: #fff; border: none; border-radius: 8px; padding: 11px 0; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+    .modal-btn-secondary { flex: 1; background: #F1F5F9; color: #64748B; border: none; border-radius: 8px; padding: 11px 0; font-size: 13px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+
+    @media (max-width: 600px) {
+      .header { padding: 18px 16px; }
+      .body { padding: 16px 12px; }
+      .progress-hero { padding: 20px 18px; }
+      .phase-grid { grid-template-columns: 1fr; gap: 10px; }
+      .task-count { font-size: 20px; }
+      .progress-pct { font-size: 36px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Modal -->
+<div class="overlay" id="overlay" style="display:none;">
+  <div class="modal">
+    <div class="modal-title">Admin Login</div>
+    <div class="modal-sub">Enter your password to manage tasks and post updates.</div>
+    <input type="password" class="modal-input" id="pw-input" placeholder="Password" />
+    <div class="modal-error" id="pw-error" style="display:none;">Incorrect password. Please try again.</div>
+    <div class="modal-btns">
+      <button class="modal-btn-primary" onclick="submitLogin()">Sign In</button>
+      <button class="modal-btn-secondary" onclick="closeLogin()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Header -->
+<div class="header">
+  <div>
+    <div class="header-brand-tag">StratusAi · Client Portal</div>
+    <div class="header-title">Levitate Logic</div>
+    <div class="header-sub">Project Progress Tracker · April 2026</div>
+  </div>
+  <button class="admin-btn" id="admin-btn" onclick="toggleAdmin()">
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+      <rect x="1.5" y="5.5" width="10" height="7" rx="1.5" stroke="currentColor" stroke-width="1.2"/>
+      <path d="M4 5.5V4A2.5 2.5 0 019 4v1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+    </svg>
+    <span id="admin-btn-label">Admin Login</span>
+  </button>
+</div>
+
+<!-- Body -->
+<div class="body">
+
+  <!-- Overall Progress -->
+  <div class="card progress-hero">
+    <div class="progress-hero-top">
+      <div>
+        <div class="progress-label">Overall Project Progress</div>
+        <div>
+          <span class="progress-pct" id="overall-pct">0%</span>
+          <span class="status-badge" id="status-badge">Not Started</span>
+        </div>
+      </div>
+      <div>
+        <div class="task-count" id="task-count">0<span>/18</span></div>
+        <div class="task-count-label">tasks complete</div>
+      </div>
+    </div>
+    <div class="bar-track">
+      <div class="bar-fill" id="overall-bar" style="width:0%;background:#94A3B8;"></div>
+    </div>
+    <div class="phase-grid" id="phase-mini-grid"></div>
+  </div>
+
+  <!-- Phase Accordions -->
+  <div id="phase-list"></div>
+
+  <!-- Activity Feed -->
+  <div class="card" style="margin-top:10px;">
+    <div class="feed-header">
+      <div class="feed-title">Project Updates</div>
+      <div class="feed-lock" id="feed-lock">
+        <svg width="12" height="12" viewBox="0 0 13 13" fill="none">
+          <rect x="1.5" y="5.5" width="10" height="7" rx="1.5" stroke="currentColor" stroke-width="1.2"/>
+          <path d="M4 5.5V4A2.5 2.5 0 019 4v1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+        Admin only
+      </div>
+    </div>
+    <div class="feed-list" id="feed-list"></div>
+    <div class="post-area" id="post-area" style="display:none;">
+      <textarea class="post-textarea" id="post-draft" rows="3" placeholder="Post a project update…"></textarea>
+      <button class="post-btn" id="post-btn" onclick="postComment()" disabled>Post Update</button>
+    </div>
+  </div>
+
+  <div class="footer">StratusAi · Intelligent Operations. Simplified. · Progress is saved automatically</div>
+</div>
+
+<script>
+  const ADMIN_PASSWORD = "StratusAi2026";
+  const TASKS_KEY = "levitate-tasks-v1";
+  const COMMENTS_KEY = "levitate-comments-v1";
+
+  const PHASES = [
+    {
+      id: 1, name: "Stabilize & Communicate", weeks: "Weeks 1–4",
+      color: "#0DB87A", borderColor: "#0DB87A18",
+      tasks: [
+        { id: "1a", text: "Deploy Calendly/Doodle with Google Calendar + Zoom integration" },
+        { id: "1b", text: "Configure booking pages for all meeting types" },
+        { id: "1c", text: "Implement firm-wide Gmail labeling & filtering system" },
+        { id: "1d", text: "Optimize Slack workspace — channel structure and team norms" },
+        { id: "1e", text: "Reconnect website contact form to HubSpot for lead capture" },
+      ]
+    },
+    {
+      id: 2, name: "Automate & Integrate", weeks: "Weeks 5–10",
+      color: "#2563EB", borderColor: "#2563EB18",
+      tasks: [
+        { id: "2a", text: "Document client onboarding process — convert to ClickUp SOP" },
+        { id: "2b", text: "Activate HubSpot CRM: deal stages, pipeline & contact properties" },
+        { id: "2c", text: "Deploy Zapier: HubSpot deal close → ClickUp task → Drive folder" },
+        { id: "2d", text: "Set up Content Snare for structured client document collection" },
+        { id: "2e", text: "Implement PandaDoc contract templates with HubSpot integration" },
+        { id: "2f", text: "Build Gmail-to-ClickUp email task routing via Zapier" },
+        { id: "2g", text: "Automate monthly grant report email delivery" },
+        { id: "2h", text: "Redesign Google Drive folder architecture & assign ownership" },
+        { id: "2i", text: "Deploy SaneBox for inbox prioritization across all team Gmail accounts" },
+      ]
+    },
+    {
+      id: 3, name: "Scale & Optimize", weeks: "Weeks 11–16+",
+      color: "#7C3AED", borderColor: "#7C3AED18",
+      tasks: [
+        { id: "3a", text: "Assess ShareFile — migrate to Drive or offboard entirely" },
+        { id: "3b", text: "Build ClickUp SOP library for all core team roles & workflows" },
+        { id: "3c", text: "Deploy Loom for video SOPs and reusable training content" },
+        { id: "3d", text: "Implement employee onboarding & offboarding checklists in ClickUp" },
+      ]
+    }
+  ];
+
+  const SEED_COMMENTS = [
+    { id: 1, author: "StratusAi", initials: "SA", time: "Apr 10, 2026", text: "Discovery memo delivered to Levitate Logic leadership. Phase 1 kick-off call scheduled for April 14th." },
+    { id: 2, author: "StratusAi", initials: "SA", time: "Apr 12, 2026", text: "Phase 1 approved. Beginning Calendly configuration and Gmail labeling system design this week. First deliverables expected by April 18th." },
+  ];
+
+  // --- State ---
+  let tasks = {};
+  let comments = [];
+  let isAdmin = false;
+  let expandedPhase = null;
+
+  function loadState() {
+    try {
+      const savedTasks = localStorage.getItem(TASKS_KEY);
+      tasks = savedTasks ? JSON.parse(savedTasks) : null;
+    } catch { tasks = null; }
+    if (!tasks) {
+      tasks = {};
+      PHASES.forEach(p => p.tasks.forEach(t => { tasks[t.id] = false; }));
+    }
+    try {
+      const savedComments = localStorage.getItem(COMMENTS_KEY);
+      comments = savedComments ? JSON.parse(savedComments) : null;
+    } catch { comments = null; }
+    if (!comments) comments = [...SEED_COMMENTS];
+  }
+
+  function saveTasks() { localStorage.setItem(TASKS_KEY, JSON.stringify(tasks)); }
+  function saveComments() { localStorage.setItem(COMMENTS_KEY, JSON.stringify(comments)); }
+
+  // --- Progress calculations ---
+  function getPhaseStats(p) {
+    const total = p.tasks.length;
+    const done = p.tasks.filter(t => tasks[t.id]).length;
+    return { total, done, pct: Math.round((done / total) * 100) };
+  }
+
+  function getOverallStats() {
+    const total = PHASES.reduce((s, p) => s + p.tasks.length, 0);
+    const done = Object.values(tasks).filter(Boolean).length;
+    return { total, done, pct: Math.round((done / total) * 100) };
+  }
+
+  function statusLabel(pct) {
+    if (pct === 0) return "Not Started";
+    if (pct < 40) return "In Progress";
+    if (pct < 75) return "Halfway There";
+    if (pct < 100) return "Nearly Complete";
+    return "Complete";
+  }
+
+  function statusColor(pct) {
+    if (pct === 0) return "#94A3B8";
+    if (pct < 40) return "#F59E0B";
+    if (pct < 75) return "#2563EB";
+    return "#0DB87A";
+  }
+
+  // --- Render ---
+  function renderProgress() {
+    const { total, done, pct } = getOverallStats();
+    const color = statusColor(pct);
+    const label = statusLabel(pct);
+
+    document.getElementById("overall-pct").textContent = pct + "%";
+    document.getElementById("overall-pct").style.color = color;
+    document.getElementById("task-count").innerHTML = done + '<span>/' + total + '</span>';
+
+    const badge = document.getElementById("status-badge");
+    badge.textContent = label;
+    badge.style.background = color + "15";
+    badge.style.color = color;
+
+    const bar = document.getElementById("overall-bar");
+    bar.style.width = pct + "%";
+    bar.style.background = color;
+
+    // Phase mini bars
+    const grid = document.getElementById("phase-mini-grid");
+    grid.innerHTML = PHASES.map(p => {
+      const s = getPhaseStats(p);
+      return `
+        <div>
+          <div class="phase-mini-label">
+            <span style="color:#64748B;font-weight:500;">Phase ${p.id}</span>
+            <span style="font-family:'DM Mono',monospace;color:${p.color};font-weight:500;">${s.pct}%</span>
+          </div>
+          <div class="phase-mini-track">
+            <div class="phase-mini-fill" style="width:${s.pct}%;background:${p.color};"></div>
+          </div>
+          <div class="phase-mini-sub">${s.done}/${s.total} tasks · ${p.weeks}</div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  function renderPhases() {
+    const container = document.getElementById("phase-list");
+    container.innerHTML = PHASES.map(p => {
+      const s = getPhaseStats(p);
+      const open = expandedPhase === p.id;
+      const taskRows = p.tasks.map(t => {
+        const done = tasks[t.id];
+        return `
+          <div class="task-row ${isAdmin ? 'admin-mode' : ''}" onclick="toggleTask('${t.id}', ${p.id})">
+            <div class="checkbox ${done ? 'checked' : ''}" style="${done ? `border-color:${p.color};background:${p.color};` : ''}">
+              ${done ? `<svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3.2 6L8 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>` : ''}
+            </div>
+            <span class="task-text ${done ? 'done' : ''}">${t.text}</span>
+            ${done ? `<span class="done-badge" style="background:${p.color}15;color:${p.color};">Done</span>` : ''}
+          </div>
+        `;
+      }).join("");
+
+      return `
+        <div class="phase-card">
+          <div class="phase-header" onclick="togglePhase(${p.id})" style="border-left:4px solid ${p.color};">
+            <div style="flex:1;">
+              <div class="phase-name">Phase ${p.id}: ${p.name}</div>
+              <div class="phase-weeks">${p.weeks}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:14px;">
+              <div class="phase-bar-wrap">
+                <div class="phase-bar-labels">
+                  <span style="font-size:11px;color:#94A3B8;">${s.done}/${s.total}</span>
+                  <span class="phase-pct" style="color:${p.color};">${s.pct}%</span>
+                </div>
+                <div style="height:4px;background:#F0F3F7;border-radius:2px;overflow:hidden;">
+                  <div style="height:100%;width:${s.pct}%;background:${p.color};border-radius:2px;transition:width .4s;"></div>
+                </div>
+              </div>
+              <svg class="chevron ${open ? 'open' : ''}" width="15" height="15" viewBox="0 0 15 15" fill="none">
+                <path d="M3.5 5.5L7.5 9.5L11.5 5.5" stroke="#94A3B8" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </div>
+          ${open ? `
+            <div class="task-list" style="border-top-color:${p.borderColor};">
+              ${!isAdmin ? `
+                <div class="readonly-notice">
+                  <svg width="12" height="12" viewBox="0 0 13 13" fill="none">
+                    <rect x="1.5" y="5.5" width="10" height="7" rx="1.5" stroke="#94A3B8" stroke-width="1.1"/>
+                    <path d="M4 5.5V4A2.5 2.5 0 019 4v1.5" stroke="#94A3B8" stroke-width="1.1" stroke-linecap="round"/>
+                  </svg>
+                  Read-only · admin login required to update tasks
+                </div>
+              ` : ''}
+              ${taskRows}
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }).join("");
+  }
+
+  function renderFeed() {
+    const list = document.getElementById("feed-list");
+    list.innerHTML = comments.map(c => `
+      <div class="comment-row">
+        <div class="comment-avatar">${c.initials}</div>
+        <div style="flex:1;">
+          <div class="comment-meta">
+            <span class="comment-author">${c.author}</span>
+            <span class="comment-dot">·</span>
+            <span class="comment-time">${c.time}</span>
+          </div>
+          <div class="comment-bubble">${c.text}</div>
+        </div>
+      </div>
+    `).join("");
+
+    document.getElementById("post-area").style.display = isAdmin ? "block" : "none";
+    document.getElementById("feed-lock").style.display = isAdmin ? "none" : "flex";
+  }
+
+  function renderAll() {
+    renderProgress();
+    renderPhases();
+    renderFeed();
+  }
+
+  // --- Actions ---
+  function togglePhase(id) {
+    expandedPhase = expandedPhase === id ? null : id;
+    renderPhases();
+  }
+
+  function toggleTask(taskId, phaseId) {
+    if (!isAdmin) return;
+    tasks[taskId] = !tasks[taskId];
+    saveTasks();
+    renderAll();
+  }
+
+  // --- Admin ---
+  function toggleAdmin() {
+    if (isAdmin) {
+      isAdmin = false;
+      document.getElementById("admin-btn").classList.remove("active");
+      document.getElementById("admin-btn-label").textContent = "Admin Login";
+      renderAll();
+    } else {
+      document.getElementById("overlay").style.display = "flex";
+      setTimeout(() => document.getElementById("pw-input").focus(), 50);
+    }
+  }
+
+  function submitLogin() {
+    const pw = document.getElementById("pw-input").value;
+    const input = document.getElementById("pw-input");
+    const error = document.getElementById("pw-error");
+    if (pw === ADMIN_PASSWORD) {
+      isAdmin = true;
+      document.getElementById("overlay").style.display = "none";
+      document.getElementById("pw-input").value = "";
+      error.style.display = "none";
+      input.classList.remove("error");
+      document.getElementById("admin-btn").classList.add("active");
+      document.getElementById("admin-btn-label").textContent = "Admin · Sign Out";
+      renderAll();
+    } else {
+      input.classList.add("error");
+      error.style.display = "block";
+    }
+  }
+
+  function closeLogin() {
+    document.getElementById("overlay").style.display = "none";
+    document.getElementById("pw-input").value = "";
+    document.getElementById("pw-error").style.display = "none";
+    document.getElementById("pw-input").classList.remove("error");
+  }
+
+  // --- Comment ---
+  function postComment() {
+    const draft = document.getElementById("post-draft").value.trim();
+    if (!draft || !isAdmin) return;
+    const now = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    comments.push({ id: Date.now(), author: "StratusAi", initials: "SA", time: now, text: draft });
+    saveComments();
+    document.getElementById("post-draft").value = "";
+    document.getElementById("post-btn").disabled = true;
+    renderFeed();
+  }
+
+  // Enable/disable post button as user types
+  document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("post-draft").addEventListener("input", function() {
+      document.getElementById("post-btn").disabled = !this.value.trim();
+    });
+    document.getElementById("pw-input").addEventListener("keydown", function(e) {
+      if (e.key === "Enter") submitLogin();
+    });
+    document.getElementById("overlay").addEventListener("click", function(e) {
+      if (e.target === this) closeLogin();
+    });
+  });
+
+  // --- Init ---
+  loadState();
+  renderAll();
+</script>
+</body>
+</html>
