@@ -1660,7 +1660,7 @@ let taskCommentsOpen = {};
 // GOOGLE SHEETS BACKEND
 // ══════════════════════════════════════════
 // Paste your Apps Script Web App URL here after deploying:
-const SHEETS_URL = '';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwlA8Xc3fynv2oNaCchUSiCvrcPqbbzK-CzQ0xqtsiwHNkixmTb947nK_Lj5t6NM8Ql/exec';
 
 // localStorage keys — used ONLY for session (current user) and
 // as an offline cache so the UI feels instant on repeat visits.
@@ -1670,19 +1670,43 @@ const LS_CACHE   = 'stratus_v1_cache';
 let _syncInProgress = false;
 
 // ── API call to Google Sheets ─────────────────────────────────
+let _sheetsFailing = false;
+
 async function sheetsCall(params) {
-  if (!SHEETS_URL) return null;
+  if (!SHEETS_URL) {
+    console.warn('SHEETS_URL is not set — data will not sync.');
+    return null;
+  }
   try {
     const url = new URL(SHEETS_URL);
     Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
-    // Cache-bust: forces Apps Script to skip its internal 6-minute cache
-    url.searchParams.set('_cb', Date.now());
+    url.searchParams.set('_cb', Date.now()); // cache-bust
     const res = await fetch(url.toString(), { method: 'GET', cache: 'no-store' });
-    const json = await res.json();
-    if (json.error) { console.error('Sheets error:', json.error); return null; }
+    if (!res.ok) {
+      throw new Error('HTTP ' + res.status + ' ' + res.statusText);
+    }
+    const text = await res.text();
+    let json;
+    try { json = JSON.parse(text); }
+    catch(pe) { throw new Error('Bad JSON from Sheets: ' + text.slice(0, 120)); }
+    if (json.error) {
+      console.error('Sheets API error:', json.error);
+      showSyncBanner('Sheets error: ' + json.error, true);
+      setTimeout(hideSyncBanner, 5000);
+      return null;
+    }
+    // Recovered after failure
+    if (_sheetsFailing) {
+      _sheetsFailing = false;
+      hideSyncBanner();
+    }
     return json;
   } catch(e) {
-    console.error('Sheets fetch failed:', e);
+    console.error('Sheets call failed [' + (params.action||'?') + ']:', e.message);
+    if (!_sheetsFailing) {
+      _sheetsFailing = true;
+      showSyncBanner('Cannot reach Google Sheets — check your deployment URL', true);
+    }
     return null;
   }
 }
