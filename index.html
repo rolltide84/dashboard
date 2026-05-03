@@ -1191,7 +1191,8 @@ function addDays(d, n) {
 }
 
 function fmtDate(d) {
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  // Force Central Time (America/Chicago) so dates never shift regardless of device timezone
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'America/Chicago' });
 }
 
 function dayStatus(dueDate) {
