@@ -1675,7 +1675,9 @@ async function sheetsCall(params) {
   try {
     const url = new URL(SHEETS_URL);
     Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
-    const res = await fetch(url.toString(), { method: 'GET' });
+    // Cache-bust: forces Apps Script to skip its internal 6-minute cache
+    url.searchParams.set('_cb', Date.now());
+    const res = await fetch(url.toString(), { method: 'GET', cache: 'no-store' });
     const json = await res.json();
     if (json.error) { console.error('Sheets error:', json.error); return null; }
     return json;
@@ -2244,7 +2246,7 @@ function launchApp() {
   // ── Start live polling if Sheets is connected ────────────
   if (SHEETS_URL) {
     if (_pollInterval) clearInterval(_pollInterval);
-    _pollInterval = setInterval(pollForUpdates, 8000);  // every 8s for near real-time
+    _pollInterval = setInterval(pollForUpdates, 5000);  // every 5s
   }
 }
 
