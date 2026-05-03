@@ -1180,7 +1180,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // DATA MODEL
 // ══════════════════════════════════════════
 
-const PROJECT_START = new Date('2026-05-05'); // Monday Week 1
+const PROJECT_START = new Date('2026-05-06'); // Wednesday Week 1 (kickoff day)
 const TODAY = new Date();                      // Live date
 
 function addDays(d, n) {
@@ -1202,93 +1202,143 @@ function dayStatus(dueDate) {
 
 // Tasks: id, name, deliverable, owner (jeff/terrell/jeremy), week (1-4), day (Mon-Fri), due, status (todo/inprog/done/behind), description
 const TASKS = [
-  // ── WEEK 1 ──────────────────────────────
-  // Jeff W1
-  { id: 'j1-1', name: 'Build ClickUp project workspace', deliverable: 'ClickUp Workspace Build', owner: 'jeff', week: 1, day: 'Mon', due: addDays(PROJECT_START, 0), status: 'done', desc: 'All spaces, channels, task lists live. Pre-populate Phase 1 deliverables with owners & due dates. Invite client stakeholders to view-only.' },
-  { id: 'j1-2', name: 'Collect system credentials from Levitate Logic', deliverable: 'ClickUp Workspace Build', owner: 'jeff', week: 1, day: 'Mon', due: addDays(PROJECT_START, 0), status: 'done', desc: 'Securely collect and store all access credentials needed for Phase 1 tools.' },
-  { id: 'j1-3', name: 'Begin Calendly configuration — booking pages', deliverable: 'Calendly Setup', owner: 'jeff', week: 1, day: 'Tue', due: addDays(PROJECT_START, 1), status: 'done', desc: 'Build master booking page template first, then duplicate for 1:1, group, and client call types. Connect Google Calendar and Zoom auto-link.' },
-  { id: 'j1-4', name: 'Complete all Calendly booking pages & test flows', deliverable: 'Calendly Setup', owner: 'jeff', week: 1, day: 'Wed', due: addDays(PROJECT_START, 2), status: 'done', desc: 'Set buffer times, email reminders, confirmation redirects. Test every booking flow end-to-end as a simulated client.' },
-  { id: 'j1-5', name: 'Fix errors & prepare Calendly walk-through for Brendela', deliverable: 'Calendly Setup', owner: 'jeff', week: 1, day: 'Thu', due: addDays(PROJECT_START, 3), status: 'done', desc: 'Resolve any test failures. Prepare scenario-based (not feature) walk-through for Brendela.' },
-  { id: 'j1-6', name: 'Research website platform & HubSpot form steps', deliverable: 'Website Form → HubSpot', owner: 'jeff', week: 1, day: 'Fri', due: addDays(PROJECT_START, 4), status: 'done', desc: 'Identify platform, form tool, and reconnection steps before Week 2 deploy.' },
 
-  // Terrell W1
-  { id: 't1-1', name: 'Send pre-kickoff welcome email', deliverable: 'Client Communication', owner: 'terrell', week: 1, day: 'Mon', due: addDays(PROJECT_START, 0), status: 'done', desc: 'Agenda, what to expect, what to prepare. Confirm Terri\'s attendance and kickoff format.' },
-  { id: 't1-2', name: 'Hold Phase 1 kickoff call with Levitate Logic', deliverable: 'Client Communication', owner: 'terrell', week: 1, day: 'Tue', due: addDays(PROJECT_START, 1), status: 'done', desc: 'Walk through ClickUp workspace live. Log all decisions in #client-comms-log. Share Loom recording same day.' },
-  { id: 't1-3', name: 'Begin designing Gmail label taxonomy', deliverable: 'Gmail Labeling System', owner: 'terrell', week: 1, day: 'Wed', due: addDays(PROJECT_START, 2), status: 'done', desc: 'Client, Grant, Admin, Follow-Up, Urgent, and Unclear catch-all. Draft for Jeremy and Terri to review.' },
-  { id: 't1-4', name: 'Walk Brendela through Calendly — live training', deliverable: 'Team Training Sessions', owner: 'terrell', week: 1, day: 'Thu', due: addDays(PROJECT_START, 3), status: 'done', desc: 'Scenario-based session. Record via Loom. Send follow-up recording and one-page cheat sheet same day.' },
-  { id: 't1-5', name: 'Send Week 1 written status update', deliverable: 'Client Communication', owner: 'terrell', week: 1, day: 'Fri', due: addDays(PROJECT_START, 4), status: 'done', desc: 'Format: Done this week / Next week / Need from you. Post in ClickUp #general-updates.' },
+  // ══════════════════════════════════════════════════════════════
+  // WEEK 1 — KICKOFF SESSION (Wed May 6 – Fri May 8)
+  // Day 0 = Wed May 6 (Kickoff Day — 11am-3pm)
+  // ══════════════════════════════════════════════════════════════
 
-  // Jeremy W1
-  { id: 'r1-1', name: 'Build time audit baseline document', deliverable: 'Time Audit Baseline', owner: 'jeremy', week: 1, day: 'Mon-Tue', due: addDays(PROJECT_START, 1), status: 'done', desc: 'Pull discovery memo data. Document hours lost by workflow with dollar value per saving. Two-column before/after format.' },
-  { id: 'r1-2', name: 'Begin HubSpot data audit', deliverable: 'HubSpot Data Audit', owner: 'jeremy', week: 1, day: 'Wed', due: addDays(PROJECT_START, 2), status: 'done', desc: 'Review contacts, deals, pipeline stages. Document what is present, missing, dirty, or incomplete. Flag fields Phase 2 automations rely on.' },
-  { id: 'r1-3', name: 'Complete HubSpot audit document', deliverable: 'HubSpot Data Audit', owner: 'jeremy', week: 1, day: 'Thu-Fri', due: addDays(PROJECT_START, 4), status: 'done', desc: 'Document contact properties, deal stage gaps, records with missing critical fields. Post in #data-research for Jeff.' },
+  // ── KICKOFF SESSION — All Team (Wed May 6) ───────────────────
+  // Pre-Configuration & Admin Access (shared responsibility)
+  { id: 'k0-1', name: 'Collect all admin credentials — Calendly, Google Workspace, Zoom, ClickUp, HubSpot', deliverable: 'Kickoff Session', owner: 'jeff', week: 1, day: 'Wed', due: addDays(PROJECT_START, 0), status: 'todo', desc: 'Collect and securely log admin logins for every platform before any configuration begins. Confirm 2FA status and who holds authenticator codes for each tool.' },
+  { id: 'k0-2', name: 'Confirm Google Workspace Super Admin access and domain', deliverable: 'Kickoff Session', owner: 'jeff', week: 1, day: 'Wed', due: addDays(PROJECT_START, 0), status: 'todo', desc: 'Confirm Super Admin email, domain (e.g. @levitatelogic.com), access to Google Admin Console, and whether a temporary consultant admin account is needed.' },
+  { id: 'k0-3', name: 'Confirm Zoom account owner, plan tier, and OAuth permissions', deliverable: 'Kickoff Session', owner: 'jeff', week: 1, day: 'Wed', due: addDays(PROJECT_START, 0), status: 'todo', desc: 'Confirm Zoom account owner email, paid plan status (Pro/Business/Enterprise), and whether consultant needs admin access for OAuth and integrations.' },
 
-  // ── WEEK 2 ──────────────────────────────
+  // MODULE 1 — Calendly Setup (Wed May 6, 11:15am – 12:15pm)
+  { id: 'k1-1', name: 'MODULE 1: Confirm Calendly plan tier and account owner', deliverable: 'Kickoff Session', owner: 'jeff', week: 1, day: 'Wed', due: addDays(PROJECT_START, 0), status: 'todo', desc: 'Confirm whether client has purchased Calendly. Capture plan tier: Free / Standard / Teams / Enterprise. Confirm how many seats are needed and who is the account owner.' },
+  { id: 'k1-2', name: 'Document all meeting types — name, duration, purpose, intake questions', deliverable: 'Kickoff Session', owner: 'terrell', week: 1, day: 'Wed', due: addDays(PROJECT_START, 0), status: 'todo', desc: 'Walk through every meeting type the client wants to offer. Capture name, duration, internal vs. external, whether it needs an intake form, manual approval, or invite-only status.' },
+  { id: 'k1-3', name: 'Capture availability rules — hours, buffer time, min notice, max meetings/day', deliverable: 'Kickoff Session', owner: 'terrell', week: 1, day: 'Wed', due: addDays(PROJECT_START, 0), status: 'todo', desc: 'Document standard working hours, buffer time before/after meetings, minimum scheduling notice (24/48hrs), max meetings per day, focus blocks, firm closures, and rolling window preference.' },
+  { id: 'k1-4', name: 'Capture branding, confirmation page text, and booking page URL preference', deliverable: 'Kickoff Session', owner: 'terrell', week: 1, day: 'Wed', due: addDays(PROJECT_START, 0), status: 'todo', desc: 'Collect brand color hex code, logo file, confirmation page text, custom URL preference (e.g. calendly.com/levitatelogic), and welcome message for clients on the booking page.' },
+  { id: 'k1-5', name: 'Draft all auto-response emails — confirmation, reminders, cancellation, no-show', deliverable: 'Kickoff Session', owner: 'terrell', week: 1, day: 'Wed', due: addDays(PROJECT_START, 0), status: 'todo', desc: 'Draft key language for booking confirmation, reminder emails (24hr + 1hr), follow-up after meeting, rescheduling, and cancellation. Capture no-show notification preferences.' },
+  { id: 'k1-6', name: 'Confirm cancellation policy, no-show tracking method, and booking link placement', deliverable: 'Kickoff Session', owner: 'jeff', week: 1, day: 'Wed', due: addDays(PROJECT_START, 0), status: 'todo', desc: 'Document cancellation policy, whether clients can self-reschedule, how no-shows are tracked (ClickUp task / CRM field), and where booking links will be placed: email signatures, website, email templates.' },
+
+  // MODULE 2 — Gmail Labeling (Wed May 6, 12:30pm – 1:30pm)
+  { id: 'k2-1', name: 'MODULE 2: List all team members and shared inboxes in Gmail system', deliverable: 'Kickoff Session', owner: 'terrell', week: 1, day: 'Wed', due: addDays(PROJECT_START, 0), status: 'todo', desc: 'Document every team member included in the firm-wide Gmail system. List all shared inboxes (info@, grants@, admin@, etc.), who owns each, and any contractors or part-time staff needing a different setup.' },
+  { id: 'k2-2', name: 'Map all email categories, volume, and priority tiers', deliverable: 'Kickoff Session', owner: 'terrell', week: 1, day: 'Wed', due: addDays(PROJECT_START, 0), status: 'todo', desc: 'Document all email categories the firm receives: clients, grants, vendors, scheduling, internal, HR, Finance, Legal, notifications, newsletters. Capture daily volume per inbox, which categories are highest priority, and which can be auto-sorted.' },
+  { id: 'k2-3', name: 'Design label architecture — parent/child structure, naming conventions, status labels', deliverable: 'Kickoff Session', owner: 'terrell', week: 1, day: 'Wed', due: addDays(PROJECT_START, 0), status: 'todo', desc: 'Determine if parent/child label structure is needed (e.g. CLIENTS > Smith Co > Project A). Capture existing labels team uses. Design urgency labels (URGENT, FYI, ROUTINE) and status labels (ACTION NEEDED, WAITING ON CLIENT, DONE).' },
+  { id: 'k2-4', name: 'Document grant workflow email rules and client-specific label needs', deliverable: 'Kickoff Session', owner: 'jeremy', week: 1, day: 'Wed', due: addDays(PROJECT_START, 0), status: 'todo', desc: 'Capture keywords and sender addresses that identify grant research emails and monthly grant delivery emails. Determine if grant attachments should auto-file to Drive and whether grant emails should trigger ClickUp task creation.' },
+  { id: 'k2-5', name: 'Define filter automation rules — auto-label, auto-archive, newsletter handling', deliverable: 'Kickoff Session', owner: 'jeremy', week: 1, day: 'Wed', due: addDays(PROJECT_START, 0), status: 'todo', desc: 'Document which senders get auto-labeled, which domains are never auto-archived, which newsletters clutter the inbox, and whether Calendly confirmation emails should be auto-labeled and deprioritized.' },
+  { id: 'k2-6', name: 'Confirm compliance requirements, retention policy, and rollout approach', deliverable: 'Kickoff Session', owner: 'jeremy', week: 1, day: 'Wed', due: addDays(PROJECT_START, 0), status: 'todo', desc: 'Identify email categories with legal/audit retention requirements. Determine HR, Finance, Legal restricted visibility needs. Confirm rollout approach: all at once or phased by department. Confirm training session and playbook preference.' },
+
+  // MODULE 3 — ClickUp (Wed May 6, 1:40pm – 2:45pm)
+  { id: 'k3-1', name: 'MODULE 3: Assess current ClickUp usage and pain points', deliverable: 'Kickoff Session', owner: 'jeff', week: 1, day: 'Wed', due: addDays(PROJECT_START, 0), status: 'todo', desc: 'Document where team communication currently happens. Identify biggest confusion and duplication points. Assess current ClickUp usage level (not using / basic / intermediate / advanced). Surface biggest frustrations with ClickUp today.' },
+  { id: 'k3-2', name: 'Map Workspace and Folder architecture — Spaces, Folders, Lists, naming conventions', deliverable: 'Kickoff Session', owner: 'jeff', week: 1, day: 'Wed', due: addDays(PROJECT_START, 0), status: 'todo', desc: 'List all existing Spaces. Determine which to rename, merge, or delete. Map Spaces to departments (Ops, Grants, HR, Finance). Design Folder and List structure within each Space. Agree on naming conventions and who can create new Spaces/Folders/Lists.' },
+  { id: 'k3-3', name: 'Document all recurring meetings — name, frequency, duration, attendees', deliverable: 'Kickoff Session', owner: 'terrell', week: 1, day: 'Wed', due: addDays(PROJECT_START, 0), status: 'todo', desc: 'List every recurring meeting (weekly, biweekly, monthly, quarterly). For each: name, frequency, duration, attendees. Confirm whether agendas live in ClickUp Docs and who documents meeting notes after each session.' },
+  { id: 'k3-4', name: 'Define task standards — custom fields, statuses, subtask rules, due date requirements', deliverable: 'Kickoff Session', owner: 'jeff', week: 1, day: 'Wed', due: addDays(PROJECT_START, 0), status: 'todo', desc: 'Determine custom fields needed on tasks (Priority, Client, Status, Assignee). Define task statuses beyond defaults (In Review, Blocked, Client Pending). Confirm whether all tasks require due dates and assignees. Identify task templates needed for recurring workflows (New Client Onboarding, Monthly Grant Delivery, Invoice Cycle).' },
+  { id: 'k3-5', name: 'Define notification policy and automation rules for ClickUp', deliverable: 'Kickoff Session', owner: 'terrell', week: 1, day: 'Wed', due: addDays(PROJECT_START, 0), status: 'todo', desc: 'Determine which ClickUp notifications to turn OFF firm-wide and which to require. Document automations to build: status change notifications, auto-assignment by List, subtask auto-creation on status change, overdue task alerts, Gmail-to-ClickUp task triggers.' },
+  { id: 'k3-6', name: 'Establish Docs and Knowledge Management plan — SOPs, Company Wiki, Governance', deliverable: 'Kickoff Session', owner: 'jeremy', week: 1, day: 'Wed', due: addDays(PROJECT_START, 0), status: 'todo', desc: 'Document where SOPs currently live. Confirm whether a Company Wiki and Department Wikis should be created in ClickUp Docs. Determine ClickUp governance: who are Workspace Admins, who can create Spaces, who maintains templates and the Company Wiki. Schedule quarterly ClickUp workspace audits.' },
+
+  // Wrap-up (Wed May 6, 2:45pm – 3:00pm)
+  { id: 'k0-4', name: 'WRAP-UP: Confirm module priorities, blockers, POC, and go-live targets', deliverable: 'Kickoff Session', owner: 'terrell', week: 1, day: 'Wed', due: addDays(PROJECT_START, 0), status: 'todo', desc: 'Confirm which module is highest priority. Identify any blockers client must resolve before implementation (Calendly purchase, Google Workspace login, ClickUp admin access). Confirm single point of contact on client side. Set target go-live dates for each module.' },
+
+  // ── Thu May 7 — Post-Kickoff Build Day 1 ─────────────────────
+  // Jeff Thu
+  { id: 'j1-1', name: 'Build ClickUp project workspace — all spaces, channels, task lists live', deliverable: 'ClickUp Workspace Build', owner: 'jeff', week: 1, day: 'Thu', due: addDays(PROJECT_START, 1), status: 'todo', desc: 'Pre-populate all Phase 1 deliverables with owners and due dates. Invite client stakeholders to view-only access.' },
+  { id: 'j1-2', name: 'Begin Calendly configuration — build master booking page template', deliverable: 'Calendly Setup', owner: 'jeff', week: 1, day: 'Thu', due: addDays(PROJECT_START, 1), status: 'todo', desc: 'Use kickoff session answers to configure all booking page types. Connect Google Calendar and Zoom auto-link integration.' },
+  // Terrell Thu
+  { id: 't1-1', name: 'Send post-kickoff summary and next steps to Levitate Logic', deliverable: 'Client Communication', owner: 'terrell', week: 1, day: 'Thu', due: addDays(PROJECT_START, 1), status: 'todo', desc: 'Written summary of everything captured in the kickoff session. Confirm decisions made, list client action items, and document go-live targets for each module.' },
+  { id: 't1-2', name: 'Begin designing Gmail label taxonomy based on kickoff answers', deliverable: 'Gmail Labeling System', owner: 'terrell', week: 1, day: 'Thu', due: addDays(PROJECT_START, 1), status: 'todo', desc: 'Build the full label architecture and filter logic document using the category map, priority tiers, and naming conventions captured in Module 2. Draft for Terri to review before any deployment.' },
+  // Jeremy Thu
+  { id: 'r1-1', name: 'Build time audit baseline document using kickoff and discovery memo data', deliverable: 'Time Audit Baseline', owner: 'jeremy', week: 1, day: 'Thu', due: addDays(PROJECT_START, 1), status: 'todo', desc: 'Combine discovery memo data with kickoff session answers. Document hours lost per workflow (scheduling, email, grant research, re-entry) with dollar value per saving. Two-column before/after format.' },
+  { id: 'r1-2', name: 'Begin HubSpot data audit — contacts, deals, pipeline stages', deliverable: 'HubSpot Data Audit', owner: 'jeremy', week: 1, day: 'Thu', due: addDays(PROJECT_START, 1), status: 'todo', desc: 'Review what exists in HubSpot: contacts, deals, pipeline stages. Document what is present, missing, dirty, or incomplete. Flag fields Phase 2 automations will rely on.' },
+
+  // ── Fri May 8 — Post-Kickoff Build Day 2 ─────────────────────
+  // Jeff Fri
+  { id: 'j1-3', name: 'Complete Calendly booking pages and test all flows end-to-end', deliverable: 'Calendly Setup', owner: 'jeff', week: 1, day: 'Fri', due: addDays(PROJECT_START, 2), status: 'todo', desc: 'Set buffer times, email reminders, confirmation redirects per kickoff decisions. Test every booking flow as a simulated client. Fix any errors before Monday.' },
+  { id: 'j1-4', name: 'Research website platform and identify HubSpot form reconnection steps', deliverable: 'Website Form → HubSpot', owner: 'jeff', week: 1, day: 'Fri', due: addDays(PROJECT_START, 2), status: 'todo', desc: 'Identify platform (WordPress/Squarespace/Webflow), form tool, and why submissions stopped routing to HubSpot. Document reconnection steps for Week 2 deploy.' },
+  // Terrell Fri
+  { id: 't1-3', name: 'Walk Brendela through Calendly — live training session', deliverable: 'Team Training Sessions', owner: 'terrell', week: 1, day: 'Fri', due: addDays(PROJECT_START, 2), status: 'todo', desc: 'Scenario-based session: rescheduling, blocking calendar, handling no-show. Record via Loom. Send follow-up recording and one-page cheat sheet same day.' },
+  { id: 't1-4', name: 'Send Week 1 written status update to Levitate Logic', deliverable: 'Client Communication', owner: 'terrell', week: 1, day: 'Fri', due: addDays(PROJECT_START, 2), status: 'todo', desc: 'Format: Done this week / Next week / Need from you. Post in ClickUp #general-updates.' },
+  // Jeremy Fri
+  { id: 'r1-3', name: 'Complete HubSpot audit document — post in #data-research for Jeff', deliverable: 'HubSpot Data Audit', owner: 'jeremy', week: 1, day: 'Fri', due: addDays(PROJECT_START, 2), status: 'todo', desc: 'Document contact properties, deal stage gaps, records with missing critical fields. Hand findings to Jeff for form reconnection targeting.' },
+
+  // ══════════════════════════════════════════════════════════════
+  // WEEK 2 — Mon May 11 – Fri May 15 (offsets 5–9)
+  // ══════════════════════════════════════════════════════════════
+
   // Jeff W2
-  { id: 'j2-1', name: 'Audit website contact form — identify root cause', deliverable: 'Website Form → HubSpot', owner: 'jeff', week: 2, day: 'Mon', due: addDays(PROJECT_START, 7), status: 'inprog', desc: 'Identify platform, form tool, and why submissions stopped routing to HubSpot. Document findings and reconnection steps.' },
-  { id: 'j2-2', name: 'Begin website form → HubSpot reconnection', deliverable: 'Website Form → HubSpot', owner: 'jeff', week: 2, day: 'Tue', due: addDays(PROJECT_START, 8), status: 'todo', desc: 'Add hidden lead-source field to auto-stamp "Website Contact Form" on every new contact record.' },
-  { id: 'j2-3', name: 'Test form reconnection — 3 dummy submissions', deliverable: 'Website Form → HubSpot', owner: 'jeff', week: 2, day: 'Wed', due: addDays(PROJECT_START, 9), status: 'todo', desc: 'Confirm records appear in HubSpot with correct pipeline stage and notification fires.' },
-  { id: 'j2-4', name: 'Build ClickUp internal comms structure for Levitate Logic', deliverable: 'ClickUp Workspace Build', owner: 'jeff', week: 2, day: 'Thu', due: addDays(PROJECT_START, 10), status: 'todo', desc: 'Separate from the Stratus project space. Channels, task lists, and access configured.' },
-  { id: 'j2-5', name: 'Walk Terri through HubSpot lead view', deliverable: 'Website Form → HubSpot', owner: 'jeff', week: 2, day: 'Fri', due: addDays(PROJECT_START, 11), status: 'todo', desc: 'Where new leads land, how to act on them, what the email notification looks like.' },
+  { id: 'j2-1', name: 'Audit website contact form — identify root cause', deliverable: 'Website Form → HubSpot', owner: 'jeff', week: 2, day: 'Mon', due: addDays(PROJECT_START, 5), status: 'todo', desc: 'Identify platform, form tool, and why submissions stopped routing to HubSpot. Document findings and reconnection steps.' },
+  { id: 'j2-2', name: 'Begin website form → HubSpot reconnection', deliverable: 'Website Form → HubSpot', owner: 'jeff', week: 2, day: 'Tue', due: addDays(PROJECT_START, 6), status: 'todo', desc: 'Add hidden lead-source field to auto-stamp "Website Contact Form" on every new contact record.' },
+  { id: 'j2-3', name: 'Test form reconnection — 3 dummy submissions', deliverable: 'Website Form → HubSpot', owner: 'jeff', week: 2, day: 'Wed', due: addDays(PROJECT_START, 7), status: 'todo', desc: 'Confirm records appear in HubSpot with correct pipeline stage and notification fires.' },
+  { id: 'j2-4', name: 'Build ClickUp internal comms structure for Levitate Logic', deliverable: 'ClickUp Workspace Build', owner: 'jeff', week: 2, day: 'Thu', due: addDays(PROJECT_START, 8), status: 'todo', desc: 'Separate from the Stratus project space. Build per kickoff Module 3 architecture decisions.' },
+  { id: 'j2-5', name: 'Walk Terri through HubSpot lead view', deliverable: 'Website Form → HubSpot', owner: 'jeff', week: 2, day: 'Fri', due: addDays(PROJECT_START, 9), status: 'todo', desc: 'Where new leads land, how to act on them, what the email notification looks like.' },
 
   // Terrell W2
-  { id: 't2-1', name: 'Present Gmail taxonomy to Terri — get approval', deliverable: 'Gmail Labeling System', owner: 'terrell', week: 2, day: 'Mon', due: addDays(PROJECT_START, 7), status: 'inprog', desc: 'Walk through each label and filter logic. Get sign-off before any deployment.' },
-  { id: 't2-2', name: 'Deploy Gmail labels to all Levitate Logic inboxes', deliverable: 'Gmail Labeling System', owner: 'terrell', week: 2, day: 'Tue', due: addDays(PROJECT_START, 8), status: 'todo', desc: 'Deploy to one inbox first, observe for a few hours, then roll firm-wide if clean.' },
-  { id: 't2-3', name: 'Lead 30-min group Gmail training session', deliverable: 'Team Training Sessions', owner: 'terrell', week: 2, day: 'Wed', due: addDays(PROJECT_START, 9), status: 'todo', desc: 'Scenario-based: show exactly what to do with an Urgent email and a Grant email. Record via Loom.' },
-  { id: 't2-4', name: 'Write & deliver ClickUp Norms one-pager', deliverable: 'ClickUp Norms & Structure', owner: 'terrell', week: 2, day: 'Thu', due: addDays(PROJECT_START, 10), status: 'todo', desc: 'Record 3-5 min Loom walkthrough alongside written doc. Distribute both to Levitate Logic team.' },
-  { id: 't2-5', name: 'Send Week 2 written status update', deliverable: 'Client Communication', owner: 'terrell', week: 2, day: 'Fri', due: addDays(PROJECT_START, 11), status: 'todo', desc: 'Include screenshot of Gmail label system and HubSpot form test confirmation.' },
+  { id: 't2-1', name: 'Present Gmail label taxonomy to Terri — get approval', deliverable: 'Gmail Labeling System', owner: 'terrell', week: 2, day: 'Mon', due: addDays(PROJECT_START, 5), status: 'todo', desc: 'Walk through each label and filter logic. Get sign-off before any deployment.' },
+  { id: 't2-2', name: 'Deploy Gmail labels to all Levitate Logic inboxes', deliverable: 'Gmail Labeling System', owner: 'terrell', week: 2, day: 'Tue', due: addDays(PROJECT_START, 6), status: 'todo', desc: 'Deploy to one inbox first, observe for a few hours, then roll firm-wide if clean.' },
+  { id: 't2-3', name: 'Lead 30-min group Gmail training session', deliverable: 'Team Training Sessions', owner: 'terrell', week: 2, day: 'Wed', due: addDays(PROJECT_START, 7), status: 'todo', desc: 'Scenario-based: show exactly what to do with an Urgent email and a Grant email. Record via Loom.' },
+  { id: 't2-4', name: 'Write & deliver ClickUp Norms one-pager', deliverable: 'ClickUp Norms & Structure', owner: 'terrell', week: 2, day: 'Thu', due: addDays(PROJECT_START, 8), status: 'todo', desc: 'Record 3-5 min Loom walkthrough alongside written doc. Distribute both to Levitate Logic team.' },
+  { id: 't2-5', name: 'Send Week 2 written status update', deliverable: 'Client Communication', owner: 'terrell', week: 2, day: 'Fri', due: addDays(PROJECT_START, 9), status: 'todo', desc: 'Include screenshot of Gmail label system and HubSpot form test confirmation.' },
 
   // Jeremy W2
-  { id: 'r2-1', name: 'Begin Zapier flow mapping — Gmail→ClickUp', deliverable: 'Zapier Automation Mapping', owner: 'jeremy', week: 2, day: 'Mon', due: addDays(PROJECT_START, 7), status: 'inprog', desc: 'Document trigger event, action, data fields passed, and dependencies. Plain-language "when / do" structure.' },
-  { id: 'r2-2', name: 'Map HubSpot deal close → ClickUp → Drive Zap', deliverable: 'Zapier Automation Mapping', owner: 'jeremy', week: 2, day: 'Tue', due: addDays(PROJECT_START, 8), status: 'todo', desc: 'Document every step, required field, and HubSpot property the Zap will read.' },
-  { id: 'r2-3', name: 'Map grant delivery Zapier flow', deliverable: 'Zapier Automation Mapping', owner: 'jeremy', week: 2, day: 'Wed', due: addDays(PROJECT_START, 9), status: 'todo', desc: 'Google Sheets tracker → Gmail auto-send. Document current Sheet structure and column changes needed for Zapier.' },
-  { id: 'r2-4', name: 'Research Content Snare', deliverable: 'Grant Research Workflow Audit', owner: 'jeremy', week: 2, day: 'Thu', due: addDays(PROJECT_START, 10), status: 'todo', desc: 'Pricing, Zapier integration, client-facing portal experience for Levitate Logic\'s grant document collection use case.' },
-  { id: 'r2-5', name: 'Research PandaDoc', deliverable: 'HubSpot CRM Configuration Plan', owner: 'jeremy', week: 2, day: 'Fri', due: addDays(PROJECT_START, 11), status: 'todo', desc: 'HubSpot integration steps, contract template build, whether it can replace Adobe Sign. Document findings.' },
+  { id: 'r2-1', name: 'Begin Zapier flow mapping — Gmail→ClickUp', deliverable: 'Zapier Automation Mapping', owner: 'jeremy', week: 2, day: 'Mon', due: addDays(PROJECT_START, 5), status: 'todo', desc: 'Document trigger event, action, data fields passed, and dependencies. Plain-language "when / do" structure.' },
+  { id: 'r2-2', name: 'Map HubSpot deal close → ClickUp → Drive Zap', deliverable: 'Zapier Automation Mapping', owner: 'jeremy', week: 2, day: 'Tue', due: addDays(PROJECT_START, 6), status: 'todo', desc: 'Document every step, required field, and HubSpot property the Zap will read.' },
+  { id: 'r2-3', name: 'Map grant delivery Zapier flow', deliverable: 'Zapier Automation Mapping', owner: 'jeremy', week: 2, day: 'Wed', due: addDays(PROJECT_START, 7), status: 'todo', desc: 'Google Sheets tracker → Gmail auto-send. Document current Sheet structure and column changes needed for Zapier.' },
+  { id: 'r2-4', name: 'Research Content Snare', deliverable: 'Grant Research Workflow Audit', owner: 'jeremy', week: 2, day: 'Thu', due: addDays(PROJECT_START, 8), status: 'todo', desc: "Pricing, Zapier integration, client-facing portal experience for Levitate Logic's grant document collection use case." },
+  { id: 'r2-5', name: 'Research PandaDoc', deliverable: 'HubSpot CRM Configuration Plan', owner: 'jeremy', week: 2, day: 'Fri', due: addDays(PROJECT_START, 9), status: 'todo', desc: 'HubSpot integration steps, contract template build, whether it can replace Adobe Sign. Document findings.' },
 
-  // ── WEEK 3 ──────────────────────────────
+  // ══════════════════════════════════════════════════════════════
+  // WEEK 3 — Mon May 18 – Fri May 22 (offsets 12–16)
+  // ══════════════════════════════════════════════════════════════
+
   // Jeff W3
-  { id: 'j3-1', name: 'Mid-phase QA check — all systems', deliverable: 'QA & System Testing', owner: 'jeff', week: 3, day: 'Mon', due: addDays(PROJECT_START, 14), status: 'todo', desc: 'Verify Gmail labels, ClickUp workspace, and HubSpot form are all functioning correctly mid-phase.' },
-  { id: 'j3-2', name: 'HubSpot pipeline sync with Jeremy', deliverable: 'Website Form → HubSpot', owner: 'jeff', week: 3, day: 'Tue', due: addDays(PROJECT_START, 15), status: 'todo', desc: '30-min sync to align on pipeline stage configuration needed for Phase 2 CRM plan.' },
-  { id: 'j3-3', name: 'Review Scheduling SOP for technical accuracy', deliverable: 'QA & System Testing', owner: 'jeff', week: 3, day: 'Thu', due: addDays(PROJECT_START, 17), status: 'todo', desc: 'Return corrections to Jeremy before end of day.' },
-  { id: 'j3-4', name: 'Build end-to-end QA test plan for Week 4', deliverable: 'QA & System Testing', owner: 'jeff', week: 3, day: 'Fri', due: addDays(PROJECT_START, 18), status: 'todo', desc: 'List every system, test type, and result field to be completed in Week 4.' },
+  { id: 'j3-1', name: 'Mid-phase QA check — all systems', deliverable: 'QA & System Testing', owner: 'jeff', week: 3, day: 'Mon', due: addDays(PROJECT_START, 12), status: 'todo', desc: 'Verify Gmail labels, ClickUp workspace, and HubSpot form are all functioning correctly mid-phase.' },
+  { id: 'j3-2', name: 'HubSpot pipeline sync with Jeremy', deliverable: 'Website Form → HubSpot', owner: 'jeff', week: 3, day: 'Tue', due: addDays(PROJECT_START, 13), status: 'todo', desc: '30-min sync to align on pipeline stage configuration needed for Phase 2 CRM plan.' },
+  { id: 'j3-3', name: 'Review Scheduling SOP for technical accuracy', deliverable: 'QA & System Testing', owner: 'jeff', week: 3, day: 'Thu', due: addDays(PROJECT_START, 15), status: 'todo', desc: 'Return corrections to Jeremy before end of day.' },
+  { id: 'j3-4', name: 'Build end-to-end QA test plan for Week 4', deliverable: 'QA & System Testing', owner: 'jeff', week: 3, day: 'Fri', due: addDays(PROJECT_START, 16), status: 'todo', desc: 'List every system, test type, and result field to be completed in Week 4.' },
 
   // Terrell W3
-  { id: 't3-1', name: 'Schedule Week 4 all-hands training sessions', deliverable: 'Team Training Sessions', owner: 'terrell', week: 3, day: 'Mon', due: addDays(PROJECT_START, 14), status: 'todo', desc: 'Confirm date, format, and that all 10-15 staff are on the calendar.' },
-  { id: 't3-2', name: 'Hold 90-min SOP discovery session with Terri', deliverable: 'Client Communication', owner: 'terrell', week: 3, day: 'Tue', due: addDays(PROJECT_START, 15), status: 'todo', desc: 'Document scheduling and inbox workflows step by step. Jeremy attends to document live. Record session.' },
-  { id: 't3-3', name: 'Draft client onboarding process map with Terri', deliverable: 'Client Communication', owner: 'terrell', week: 3, day: 'Wed-Thu', due: addDays(PROJECT_START, 17), status: 'todo', desc: 'Document every manual step for a new client: HubSpot setup, ClickUp project, Drive folder, welcome email.' },
-  { id: 't3-4', name: 'Send Week 3 status update with SOP drafts', deliverable: 'Client Communication', owner: 'terrell', week: 3, day: 'Fri', due: addDays(PROJECT_START, 18), status: 'todo', desc: 'Include KB library link and SOP drafts. Request feedback returned by Monday of Week 4.' },
+  { id: 't3-1', name: 'Schedule Week 4 all-hands training sessions', deliverable: 'Team Training Sessions', owner: 'terrell', week: 3, day: 'Mon', due: addDays(PROJECT_START, 12), status: 'todo', desc: 'Confirm date, format, and that all staff are on the calendar.' },
+  { id: 't3-2', name: 'Hold 90-min SOP discovery session with Terri', deliverable: 'Client Communication', owner: 'terrell', week: 3, day: 'Tue', due: addDays(PROJECT_START, 13), status: 'todo', desc: 'Document scheduling and inbox workflows step by step. Jeremy attends to document live. Record session.' },
+  { id: 't3-3', name: 'Draft client onboarding process map with Terri', deliverable: 'Client Communication', owner: 'terrell', week: 3, day: 'Wed-Thu', due: addDays(PROJECT_START, 15), status: 'todo', desc: 'Document every manual step for a new client: HubSpot setup, ClickUp project, Drive folder, welcome email.' },
+  { id: 't3-4', name: 'Send Week 3 status update with SOP drafts', deliverable: 'Client Communication', owner: 'terrell', week: 3, day: 'Fri', due: addDays(PROJECT_START, 16), status: 'todo', desc: 'Include KB library link and SOP drafts. Request feedback returned by Monday of Week 4.' },
 
   // Jeremy W3
-  { id: 'r3-1', name: 'Build KB library skeleton in ClickUp Docs', deliverable: 'SOP Authoring & KB Library', owner: 'jeremy', week: 3, day: 'Mon', due: addDays(PROJECT_START, 14), status: 'todo', desc: 'Create all folders: Scheduling, Email/Inbox, ClickUp Comms, Tool Guides, Training, Policies. Set naming conventions.' },
-  { id: 'r3-2', name: 'Document SOP discovery session live', deliverable: 'SOP Authoring & KB Library', owner: 'jeremy', week: 3, day: 'Tue', due: addDays(PROJECT_START, 15), status: 'todo', desc: 'Attend Terri\'s session. Every step, exception, and handoff captured before end of day.' },
-  { id: 'r3-3', name: 'Write Scheduling SOP', deliverable: 'SOP Authoring & KB Library', owner: 'jeremy', week: 3, day: 'Wed', due: addDays(PROJECT_START, 16), status: 'todo', desc: 'Calendly management, booking updates, exception handling. Plain language with screenshots. Send to Jeff for accuracy review.' },
-  { id: 'r3-4', name: 'Write Gmail Inbox SOP', deliverable: 'SOP Authoring & KB Library', owner: 'jeremy', week: 3, day: 'Thu', due: addDays(PROJECT_START, 17), status: 'todo', desc: 'Daily triage workflow, label rules, escalation steps. Role-specific versions for Brendela and Terri.' },
-  { id: 'r3-5', name: 'Write ClickUp Internal Comms SOP', deliverable: 'SOP Authoring & KB Library', owner: 'jeremy', week: 3, day: 'Fri', due: addDays(PROJECT_START, 18), status: 'todo', desc: 'Begin Google Drive architecture plan. Research SaneBox pricing and org-level deployment.' },
+  { id: 'r3-1', name: 'Build KB library skeleton in ClickUp Docs', deliverable: 'SOP Authoring & KB Library', owner: 'jeremy', week: 3, day: 'Mon', due: addDays(PROJECT_START, 12), status: 'todo', desc: 'Create all folders: Scheduling, Email/Inbox, ClickUp Comms, Tool Guides, Training, Policies. Set naming conventions.' },
+  { id: 'r3-2', name: 'Document SOP discovery session live', deliverable: 'SOP Authoring & KB Library', owner: 'jeremy', week: 3, day: 'Tue', due: addDays(PROJECT_START, 13), status: 'todo', desc: "Attend Terri's session. Every step, exception, and handoff captured before end of day." },
+  { id: 'r3-3', name: 'Write Scheduling SOP', deliverable: 'SOP Authoring & KB Library', owner: 'jeremy', week: 3, day: 'Wed', due: addDays(PROJECT_START, 14), status: 'todo', desc: 'Calendly management, booking updates, exception handling. Plain language with screenshots. Send to Jeff for accuracy review.' },
+  { id: 'r3-4', name: 'Write Gmail Inbox SOP', deliverable: 'SOP Authoring & KB Library', owner: 'jeremy', week: 3, day: 'Thu', due: addDays(PROJECT_START, 15), status: 'todo', desc: 'Daily triage workflow, label rules, escalation steps. Role-specific versions for Brendela and Terri.' },
+  { id: 'r3-5', name: 'Write ClickUp Internal Comms SOP', deliverable: 'SOP Authoring & KB Library', owner: 'jeremy', week: 3, day: 'Fri', due: addDays(PROJECT_START, 16), status: 'todo', desc: 'Begin Google Drive architecture plan. Research SaneBox pricing and org-level deployment.' },
 
-  // ── WEEK 4 ──────────────────────────────
+  // ══════════════════════════════════════════════════════════════
+  // WEEK 4 — Mon May 25 – Fri May 29 (offsets 19–23)
+  // ══════════════════════════════════════════════════════════════
+
   // Jeff W4
-  { id: 'j4-1', name: 'Run full end-to-end QA', deliverable: 'QA & System Testing', owner: 'jeff', week: 4, day: 'Mon', due: addDays(PROJECT_START, 21), status: 'todo', desc: 'Calendly, HubSpot form, Gmail labels, ClickUp workspace. Simulate real client experiences. Document every test.' },
-  { id: 'j4-2', name: 'Fix QA issues, confirm zero open items', deliverable: 'QA & System Testing', owner: 'jeff', week: 4, day: 'Tue', due: addDays(PROJECT_START, 22), status: 'todo', desc: 'Stand by for technical questions during training sessions.' },
-  { id: 'j4-3', name: 'Final QA sign-off document', deliverable: 'QA & System Testing', owner: 'jeff', week: 4, day: 'Wed', due: addDays(PROJECT_START, 23), status: 'todo', desc: 'Confirm all Phase 1 systems are live, integrated, and functioning. Document for close meeting.' },
-  { id: 'j4-4', name: 'Present Phase 2 technical scope at close meeting', deliverable: 'QA & System Testing', owner: 'jeff', week: 4, day: 'Thu', due: addDays(PROJECT_START, 24), status: 'todo', desc: 'Zapier flows, HubSpot config, integrations. Support Terrell in fielding technical questions.' },
-  { id: 'j4-5', name: 'Confirm all Phase 2 access & credentials', deliverable: 'ClickUp Workspace Build', owner: 'jeff', week: 4, day: 'Fri', due: addDays(PROJECT_START, 25), status: 'todo', desc: 'Ensure Phase 1 systems stable and client team is self-sufficient.' },
+  { id: 'j4-1', name: 'Run full end-to-end QA', deliverable: 'QA & System Testing', owner: 'jeff', week: 4, day: 'Mon', due: addDays(PROJECT_START, 19), status: 'todo', desc: 'Calendly, HubSpot form, Gmail labels, ClickUp workspace. Simulate real client experiences. Document every test.' },
+  { id: 'j4-2', name: 'Fix QA issues, confirm zero open items', deliverable: 'QA & System Testing', owner: 'jeff', week: 4, day: 'Tue', due: addDays(PROJECT_START, 20), status: 'todo', desc: 'Stand by for technical questions during training sessions.' },
+  { id: 'j4-3', name: 'Final QA sign-off document', deliverable: 'QA & System Testing', owner: 'jeff', week: 4, day: 'Wed', due: addDays(PROJECT_START, 21), status: 'todo', desc: 'Confirm all Phase 1 systems are live, integrated, and functioning. Document for close meeting.' },
+  { id: 'j4-4', name: 'Present Phase 2 technical scope at close meeting', deliverable: 'QA & System Testing', owner: 'jeff', week: 4, day: 'Thu', due: addDays(PROJECT_START, 22), status: 'todo', desc: 'Zapier flows, HubSpot config, integrations. Support Terrell in fielding technical questions.' },
+  { id: 'j4-5', name: 'Confirm all Phase 2 access & credentials', deliverable: 'ClickUp Workspace Build', owner: 'jeff', week: 4, day: 'Fri', due: addDays(PROJECT_START, 23), status: 'todo', desc: 'Ensure Phase 1 systems stable and client team is self-sufficient.' },
 
   // Terrell W4
-  { id: 't4-1', name: 'Finalize all SOPs based on Terri\'s feedback', deliverable: 'Team Training Sessions', owner: 'terrell', week: 4, day: 'Mon', due: addDays(PROJECT_START, 21), status: 'todo', desc: 'Publish final versions to KB library. Send Terri final training schedule.' },
-  { id: 't4-2', name: 'Lead 60-min ops staff training', deliverable: 'Team Training Sessions', owner: 'terrell', week: 4, day: 'Tue', due: addDays(PROJECT_START, 22), status: 'todo', desc: 'Calendly, Gmail labels, ClickUp navigation. Live practice task for every participant. Record via Loom.' },
-  { id: 't4-3', name: 'Lead 45-min leadership training', deliverable: 'Team Training Sessions', owner: 'terrell', week: 4, day: 'Wed', due: addDays(PROJECT_START, 23), status: 'todo', desc: 'Terri + team leads: HubSpot lead view, ClickUp task ownership, SOP navigation. Record via Loom.' },
-  { id: 't4-4', name: 'Hold Phase 1 Close Meeting with Terri', deliverable: 'Client Communication', owner: 'terrell', week: 4, day: 'Thu', due: addDays(PROJECT_START, 24), status: 'todo', desc: 'Present results, celebrate wins, walk through Phase 2 scope. Send adoption pulse survey immediately after.' },
-  { id: 't4-5', name: 'Complete 1:1 follow-ups & final status update', deliverable: 'Client Communication', owner: 'terrell', week: 4, day: 'Fri', due: addDays(PROJECT_START, 25), status: 'todo', desc: 'Follow up with staff below adoption threshold. Send final update confirming Phase 1 complete and Phase 2 approved.' },
+  { id: 't4-1', name: "Finalize all SOPs based on Terri's feedback", deliverable: 'Team Training Sessions', owner: 'terrell', week: 4, day: 'Mon', due: addDays(PROJECT_START, 19), status: 'todo', desc: 'Publish final versions to KB library. Send Terri final training schedule.' },
+  { id: 't4-2', name: 'Lead 60-min ops staff training', deliverable: 'Team Training Sessions', owner: 'terrell', week: 4, day: 'Tue', due: addDays(PROJECT_START, 20), status: 'todo', desc: 'Calendly, Gmail labels, ClickUp navigation. Live practice task for every participant. Record via Loom.' },
+  { id: 't4-3', name: 'Lead 45-min leadership training', deliverable: 'Team Training Sessions', owner: 'terrell', week: 4, day: 'Wed', due: addDays(PROJECT_START, 21), status: 'todo', desc: "Terri + team leads: HubSpot lead view, ClickUp task ownership, SOP navigation. Record via Loom." },
+  { id: 't4-4', name: 'Hold Phase 1 Close Meeting with Terri', deliverable: 'Client Communication', owner: 'terrell', week: 4, day: 'Thu', due: addDays(PROJECT_START, 22), status: 'todo', desc: 'Present results, celebrate wins, walk through Phase 2 scope. Send adoption pulse survey immediately after.' },
+  { id: 't4-5', name: 'Complete 1:1 follow-ups & final status update', deliverable: 'Client Communication', owner: 'terrell', week: 4, day: 'Fri', due: addDays(PROJECT_START, 23), status: 'todo', desc: 'Follow up with staff below adoption threshold. Send final update confirming Phase 1 complete and Phase 2 approved.' },
 
   // Jeremy W4
-  { id: 'r4-1', name: 'Compile Phase 2 scope document', deliverable: 'Phase 2 Scope Document', owner: 'jeremy', week: 4, day: 'Mon', due: addDays(PROJECT_START, 21), status: 'todo', desc: 'Zapier flow map, HubSpot CRM config plan, Drive architecture, onboarding SOP, grant workflow audit, Content Snare plan, PandaDoc notes.' },
-  { id: 'r4-2', name: 'Finalize Phase 2 scope — technical accuracy review with Jeff', deliverable: 'Phase 2 Scope Document', owner: 'jeremy', week: 4, day: 'Tue', due: addDays(PROJECT_START, 22), status: 'todo', desc: 'Review Zapier flows and HubSpot config with Jeff. Prepare before/after time savings for close meeting.' },
-  { id: 'r4-3', name: 'Measure actual time savings vs. baseline', deliverable: 'Time Audit Baseline', owner: 'jeremy', week: 4, day: 'Wed', due: addDays(PROJECT_START, 23), status: 'todo', desc: 'Pull Calendly usage data, confirm Gmail adoption, calculate real before/after numbers for close meeting.' },
-  { id: 'r4-4', name: 'Deliver Phase 1 Completion Summary to Levitate Logic', deliverable: 'Phase 2 Scope Document', owner: 'jeremy', week: 4, day: 'Thu', due: addDays(PROJECT_START, 24), status: 'todo', desc: 'What was built, time recovered, KB library index, Phase 2 scope with timeline. Phase 2 approved at close meeting.' },
-  { id: 'r4-5', name: 'Archive Phase 1 docs & confirm Phase 2 start', deliverable: 'Phase 2 Scope Document', owner: 'jeremy', week: 4, day: 'Fri', due: addDays(PROJECT_START, 25), status: 'todo', desc: 'Confirm Phase 2 scope document posted and accessible in ClickUp. Phase 2 begins Monday.' },
+  { id: 'r4-1', name: 'Compile Phase 2 scope document', deliverable: 'Phase 2 Scope Document', owner: 'jeremy', week: 4, day: 'Mon', due: addDays(PROJECT_START, 19), status: 'todo', desc: 'Zapier flow map, HubSpot CRM config plan, Drive architecture, onboarding SOP, grant workflow audit, Content Snare plan, PandaDoc notes.' },
+  { id: 'r4-2', name: 'Finalize Phase 2 scope — technical accuracy review with Jeff', deliverable: 'Phase 2 Scope Document', owner: 'jeremy', week: 4, day: 'Tue', due: addDays(PROJECT_START, 20), status: 'todo', desc: 'Review Zapier flows and HubSpot config with Jeff. Prepare before/after time savings for close meeting.' },
+  { id: 'r4-3', name: 'Measure actual time savings vs. baseline', deliverable: 'Time Audit Baseline', owner: 'jeremy', week: 4, day: 'Wed', due: addDays(PROJECT_START, 21), status: 'todo', desc: 'Pull Calendly usage data, confirm Gmail adoption, calculate real before/after numbers for close meeting.' },
+  { id: 'r4-4', name: 'Deliver Phase 1 Completion Summary to Levitate Logic', deliverable: 'Phase 2 Scope Document', owner: 'jeremy', week: 4, day: 'Thu', due: addDays(PROJECT_START, 22), status: 'todo', desc: 'What was built, time recovered, KB library index, Phase 2 scope with timeline. Phase 2 approved at close meeting.' },
+  { id: 'r4-5', name: 'Archive Phase 1 docs & confirm Phase 2 start', deliverable: 'Phase 2 Scope Document', owner: 'jeremy', week: 4, day: 'Fri', due: addDays(PROJECT_START, 23), status: 'todo', desc: 'Confirm Phase 2 scope document posted and accessible in ClickUp. Phase 2 begins Monday.' },
+
 ];
 
 const DELIVERABLES = [
+  { id: 'ks',  name: 'Kickoff Session', owner: 'terrell' },
   { id: 'cal', name: 'Calendly Setup', owner: 'jeff' },
   { id: 'hub', name: 'Website Form → HubSpot', owner: 'jeff' },
   { id: 'cup', name: 'ClickUp Workspace Build', owner: 'jeff' },
@@ -1313,6 +1363,21 @@ const DELIVERABLES = [
 // DELIVERABLE INSIGHTS
 // ══════════════════════════════════════════
 const DELIVERABLE_INSIGHTS = {
+  "Kickoff Session": {
+    strategy: [
+      "Run the kickoff session in module order: Calendly first because it delivers the fastest visible win, Gmail second because it requires credential access decisions, ClickUp third because the architecture depends on understanding how the team communicates.",
+      "Collect ALL admin credentials before starting any configuration. Nothing can be set up without the appropriate admin login. A missing credential on kickoff day costs a full day of delay.",
+      "Document answers directly in ClickUp during the session — not on paper or in personal notes. Every decision made in the room should be in the project space before the session ends."
+    ],
+    practice: [
+      "For each meeting type in Module 1, capture name, duration, internal vs. external, intake form requirement, manual approval, and invite-only status in one structured row — not scattered across notes.",
+      "In Module 2, get the client to name the top 5 email categories that matter most before designing any label structure. The taxonomy should reflect how they think, not how a template suggests.",
+      "In Module 3, ask the team to name their single biggest ClickUp frustration before mapping architecture. The answer shapes every workspace decision that follows."
+    ],
+    example: [
+      "A consulting firm that completed a structured kickoff session with pre-collected credentials and documented decisions in ClickUp during the session reduced post-kickoff clarification emails from an average of 14 to zero. Every configuration question had an answer on file before implementation began."
+    ]
+  },
   "Calendly Setup": {
     strategy: [
       "Build one master booking page template first, then duplicate for each meeting type. This cuts config time by 60% vs building each page from scratch.",
@@ -1544,7 +1609,7 @@ let taskCommentsOpen = {};
 // GOOGLE SHEETS BACKEND
 // ══════════════════════════════════════════
 // Paste your Apps Script Web App URL here after deploying:
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyA9PZt7kt3g5i4QTAKOjL0C6p7bCSPsB-mMkd7_TnCbl16TH-czNtmuIHqPsmVBrMl/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxVmWE0yAznjJBvEj_N2Fix0q3KqPGeMLSj2m2r7dcHrSG49DvwVMDaL8Y11S-iKLhR/exec';
 
 // localStorage keys — used ONLY for session (current user) and
 // as an offline cache so the UI feels instant on repeat visits.
@@ -2056,6 +2121,8 @@ function updateDarkIcon(theme) {
 // APP LAUNCH
 // ══════════════════════════════════════════
 
+let _pollInterval = null;
+
 function launchApp() {
   updateDarkIcon(localStorage.getItem('stratus_v1_theme') || 'light');
   ['register','login','otp'].forEach(s => {
@@ -2078,12 +2145,74 @@ function launchApp() {
   document.getElementById('topbar-notif-wrap').classList.toggle('hidden', !isAdmin);
   document.getElementById('topbar-acct-wrap').classList.toggle('hidden', !isAdmin);
 
-  if (isAdmin) {
-    buildNotifications();
-  }
+  if (isAdmin) buildNotifications();
 
   renderDashboard();
+
+  // ── Start live polling if Sheets is connected ────────────
+  if (SHEETS_URL) {
+    if (_pollInterval) clearInterval(_pollInterval);
+    _pollInterval = setInterval(pollForUpdates, 30000); // every 30s
+  }
 }
+
+// Poll Sheets for changes — silently refreshes if data changed
+async function pollForUpdates() {
+  if (!currentUser || !SHEETS_URL) return;
+  try {
+    const data = await sheetsCall({ action: 'getAll' });
+    if (!data) return;
+
+    let changed = false;
+
+    // Check task states
+    if (data.tasks) {
+      data.tasks.forEach(t => {
+        if (t.taskId && t.status && taskState[t.taskId] !== t.status) {
+          taskState[t.taskId] = t.status;
+          changed = true;
+        }
+      });
+    }
+
+    // Check comments
+    if (data.comments) {
+      const newComments = {};
+      data.comments.forEach(c => {
+        if (!c.taskId) return;
+        if (!newComments[c.taskId]) newComments[c.taskId] = [];
+        newComments[c.taskId].push({ author: c.author, text: c.text, ts: Number(c.timestamp) || 0 });
+      });
+      // Compare comment counts
+      Object.keys(newComments).forEach(tid => {
+        const existing = (comments[tid] || []).length;
+        if (newComments[tid].length !== existing) changed = true;
+      });
+      if (changed) Object.assign(comments, newComments);
+    }
+
+    if (changed) {
+      writeCache();
+      renderDashboard();
+      if (['jeff','terrell','jeremy'].includes(currentUser)) buildNotifications();
+      // Flash the project-pill to signal a live update came in
+      const pill = document.querySelector('.topbar-project-pill');
+      if (pill) {
+        pill.style.background = 'var(--ok-bg)';
+        pill.style.color = 'var(--ok)';
+        pill.style.borderColor = 'var(--ok)';
+        setTimeout(() => {
+          pill.style.background = '';
+          pill.style.color = '';
+          pill.style.borderColor = '';
+        }, 2000);
+      }
+    }
+  } catch(e) {
+    // Silent fail — don't disturb the user for a polling hiccup
+  }
+}
+
 
 // ══════════════════════════════════════════
 // NOTIFICATIONS
@@ -2554,8 +2683,11 @@ function initAdminTabs() {
 // STARTUP
 // ══════════════════════════════════════════
 
-document.addEventListener('DOMContentLoaded', function() {
-  if (currentUser && users[currentUser]) {
+document.addEventListener('DOMContentLoaded', async function() {
+  // loadState fetches from Sheets (async) + applies local cache immediately
+  await loadState();
+
+  if (currentUser && users[currentUser] && users[currentUser].passwordHash) {
     launchApp();
   } else {
     showScreen('login');
