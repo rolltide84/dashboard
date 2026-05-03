@@ -1,499 +1,2566 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Levitate Logic · Project Tracker</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500&family=DM+Mono:wght@500&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'DM Sans', sans-serif; background: #F0F3F7; min-height: 100vh; color: #334155; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StratusAi — Phase 1 Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-    /* Header */
-    .header { background: #0C1A2E; padding: 22px 32px; display: flex; justify-content: space-between; align-items: center; }
-    .header-brand-tag { font-size: 11px; font-weight: 600; color: #0DB87A; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 3px; }
-    .header-title { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; color: #fff; }
-    .header-sub { font-size: 12px; color: #475569; margin-top: 2px; }
-    .admin-btn { display: flex; align-items: center; gap: 7px; border-radius: 8px; padding: 8px 16px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; border: 1px solid #334155; background: transparent; color: #64748B; transition: all .2s; }
-    .admin-btn.active { border-color: #0DB87A55; background: #0DB87A18; color: #0DB87A; }
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* Body */
-    .body { max-width: 820px; margin: 0 auto; padding: 28px 20px; }
+  :root {
+    /* Brand */
+    --ink:         #0A0F1E;
+    --ink2:        #3A3F5C;
+    --ink3:        #7B82A0;
+    --ink4:        #B0B6CC;
+    --canvas:      #F4F5F8;
+    --canvas2:     #ECEEF3;
+    --line:        #E0E3EE;
+    --line2:       #C8CCDC;
+    --white:       #FFFFFF;
 
-    /* Cards */
-    .card { background: #fff; border-radius: 14px; border: 1px solid #E2ECF5; overflow: hidden; }
-    .card + .card, .card + .phase-card, .phase-card + .phase-card, .phase-card + .card { margin-top: 10px; }
+    /* Accent — deep navy primary */
+    --brand:       #0F2B5B;
+    --brand-mid:   #1A4A9B;
+    --brand-light: #EAF0FB;
+    --brand-glow:  rgba(26,74,155,0.14);
 
-    /* Progress hero */
-    .progress-hero { padding: 28px 30px; margin-bottom: 8px; }
-    .progress-hero-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
-    .progress-label { font-size: 12px; font-weight: 600; color: #94A3B8; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px; }
-    .progress-pct { font-family: 'Syne', sans-serif; font-size: 48px; font-weight: 800; line-height: 1; }
-    .status-badge { display: inline-block; border-radius: 20px; padding: 5px 14px; font-size: 12px; font-weight: 700; margin-left: 12px; vertical-align: middle; }
-    .task-count { font-family: 'DM Mono', monospace; font-size: 26px; font-weight: 500; color: #0C1A2E; text-align: right; }
-    .task-count span { font-size: 16px; color: #CBD5E1; }
-    .task-count-label { font-size: 12px; color: #94A3B8; text-align: right; margin-top: 2px; }
-    .bar-track { height: 14px; background: #F0F3F7; border-radius: 7px; overflow: hidden; margin-bottom: 16px; }
-    .bar-fill { height: 100%; border-radius: 7px; transition: width .5s ease; }
-    .phase-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-    .phase-mini-label { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 11px; }
-    .phase-mini-track { height: 4px; background: #F0F3F7; border-radius: 2px; overflow: hidden; }
-    .phase-mini-fill { height: 100%; border-radius: 2px; transition: width .4s; }
-    .phase-mini-sub { font-size: 11px; color: #94A3B8; margin-top: 4px; }
+    /* Status */
+    --ok:          #0D7A50;
+    --ok-bg:       #E6F5EE;
+    --warn:        #875500;
+    --warn-bg:     #FEF6E4;
+    --danger:      #9B1C1C;
+    --danger-bg:   #FEE8E8;
 
-    /* Phase accordion */
-    .phase-card { background: #fff; border-radius: 14px; border: 1px solid #E2ECF5; overflow: hidden; margin-top: 10px; }
-    .phase-header { display: flex; align-items: center; gap: 14px; padding: 16px 22px; cursor: pointer; transition: background .15s; }
-    .phase-header:hover { background: #FAFBFC; }
-    .phase-name { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: #0C1A2E; }
-    .phase-weeks { font-size: 11px; color: #94A3B8; margin-top: 1px; }
-    .phase-bar-wrap { width: 110px; }
-    .phase-bar-labels { display: flex; justify-content: space-between; margin-bottom: 4px; }
-    .phase-pct { font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; }
-    .chevron { transition: transform .2s; flex-shrink: 0; }
-    .chevron.open { transform: rotate(180deg); }
+    /* Owner palette */
+    --jeff:        #0F3460;
+    --jeff-bg:     #E5EDF8;
+    --jeff-dot:    #1A5FAD;
+    --terr:        #1A4731;
+    --terr-bg:     #E4F1EA;
+    --terr-dot:    #1E7A45;
+    --jer:         #6B1A1A;
+    --jer-bg:      #FAE8E8;
+    --jer-dot:     #C0392B;
+    --terri:       #3D1A7A;
+    --terri-bg:    #EDE4FA;
+    --terri-dot:   #6C3FC8;
 
-    /* Task list */
-    .task-list { border-top-width: 1px; border-top-style: solid; }
-    .readonly-notice { display: flex; align-items: center; gap: 5px; padding: 8px 22px 4px; font-size: 11px; color: #94A3B8; }
-    .task-row { display: flex; align-items: flex-start; gap: 12px; padding: 11px 22px; border-bottom: .5px solid #F4F6F9; cursor: default; transition: background .15s; }
-    .task-row.admin-mode { cursor: pointer; }
-    .task-row.admin-mode:hover { background: #F8FAFC; }
-    .checkbox { width: 17px; height: 17px; border-radius: 4px; border: 1.5px solid #E2E8F0; background: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; transition: all .15s; }
-    .checkbox.checked { border-width: 2px; }
-    .task-text { font-size: 13px; color: #334155; line-height: 1.55; flex: 1; transition: color .15s; }
-    .task-text.done { color: #94A3B8; text-decoration: line-through; }
-    .done-badge { flex-shrink: 0; border-radius: 4px; padding: 2px 8px; font-size: 10px; font-weight: 700; }
+    /* Geometry */
+    --r:           10px;
+    --r-sm:        6px;
+    --r-lg:        16px;
+    --sh:          0 1px 3px rgba(10,15,30,.06), 0 4px 16px rgba(10,15,30,.06);
+    --sh-lg:       0 8px 40px rgba(10,15,30,.14);
+    --sh-inset:    inset 0 1px 2px rgba(10,15,30,.06);
 
-    /* Activity feed */
-    .feed-header { padding: 16px 22px; border-bottom: 1px solid #F0F3F7; display: flex; justify-content: space-between; align-items: center; }
-    .feed-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: #0C1A2E; }
-    .feed-lock { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #94A3B8; }
-    .feed-list { padding: 16px 22px; display: flex; flex-direction: column; gap: 14px; }
-    .comment-row { display: flex; gap: 12px; }
-    .comment-avatar { width: 32px; height: 32px; border-radius: 50%; background: #0DB87A18; color: #0DB87A; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
-    .comment-meta { display: flex; gap: 8px; align-items: baseline; margin-bottom: 5px; }
-    .comment-author { font-weight: 600; font-size: 13px; color: #0C1A2E; }
-    .comment-dot { font-size: 11px; color: #CBD5E1; }
-    .comment-time { font-size: 11px; color: #94A3B8; }
-    .comment-bubble { font-size: 13px; color: #374151; line-height: 1.6; background: #F8FAFC; border-radius: 8px; padding: 10px 14px; border: .5px solid #EAEFF5; }
-    .post-area { border-top: 1px solid #F0F3F7; padding: 14px 22px; }
-    .post-textarea { width: 100%; padding: 10px 14px; border: 1px solid #E2E8F0; border-radius: 8px; font-size: 13px; resize: none; color: #0C1A2E; font-family: 'DM Sans', sans-serif; outline: none; margin-bottom: 10px; }
-    .post-textarea:focus { border-color: #0DB87A; }
-    .post-btn { background: #0C1A2E; color: #fff; border: none; border-radius: 8px; padding: 9px 22px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: opacity .2s; }
-    .post-btn:disabled { background: #F1F5F9; color: #94A3B8; cursor: default; }
-    .footer { text-align: center; margin-top: 22px; font-size: 11px; color: #94A3B8; padding-bottom: 32px; }
+    font-family: 'Inter', sans-serif;
+    font-feature-settings: 'cv02','cv03','cv04','cv11';
+  }
 
-    /* Modal overlay */
-    .overlay { position: fixed; inset: 0; background: rgba(12,26,46,.65); z-index: 100; display: flex; align-items: flex-start; justify-content: center; padding-top: 90px; }
-    .modal { background: #fff; border-radius: 16px; padding: 32px 36px; width: 360px; max-width: 90vw; }
-    .modal-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: #0C1A2E; margin-bottom: 6px; }
-    .modal-sub { font-size: 13px; color: #64748B; margin-bottom: 24px; }
-    .modal-input { width: 100%; padding: 11px 14px; border: 1.5px solid #E2E8F0; border-radius: 8px; font-size: 14px; font-family: 'DM Sans', sans-serif; outline: none; margin-bottom: 16px; }
-    .modal-input:focus { border-color: #0DB87A; }
-    .modal-input.error { border-color: #EF4444; margin-bottom: 6px; }
-    .modal-error { font-size: 12px; color: #EF4444; margin-bottom: 14px; }
-    .modal-btns { display: flex; gap: 10px; }
-    .modal-btn-primary { flex: 1; background: #0C1A2E; color: #fff; border: none; border-radius: 8px; padding: 11px 0; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
-    .modal-btn-secondary { flex: 1; background: #F1F5F9; color: #64748B; border: none; border-radius: 8px; padding: 11px 0; font-size: 13px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+  /* ─── DARK MODE TOKENS ─────────────────────── */
+  [data-theme="dark"] {
+    --ink:         #E8EAF0;
+    --ink2:        #A8AEBE;
+    --ink3:        #6A7090;
+    --ink4:        #4A5068;
+    --canvas:      #0E1117;
+    --canvas2:     #161B26;
+    --line:        #1E2535;
+    --line2:       #2A3248;
+    --white:       #131929;
+    --brand:       #2563EB;
+    --brand-mid:   #3B82F6;
+    --brand-light: #1E2F50;
+    --brand-glow:  rgba(59,130,246,0.18);
+    --ok:          #10B981;
+    --ok-bg:       #0A2E1E;
+    --warn:        #F59E0B;
+    --warn-bg:     #2A1F00;
+    --danger:      #F87171;
+    --danger-bg:   #2A0E0E;
+    --jeff-bg:     #0F1E35;
+    --jeff-dot:    #3B82F6;
+    --terr-bg:     #0A1E12;
+    --terr-dot:    #34D399;
+    --jer-bg:      #2A0E0E;
+    --jer-dot:     #F87171;
+    --terri-bg:    #1A0E35;
+    --terri-dot:   #A78BFA;
+    --sh:          0 1px 3px rgba(0,0,0,.4), 0 4px 16px rgba(0,0,0,.3);
+    --sh-lg:       0 8px 40px rgba(0,0,0,.5);
+  }
 
-    @media (max-width: 600px) {
-      .header { padding: 18px 16px; }
-      .body { padding: 16px 12px; }
-      .progress-hero { padding: 20px 18px; }
-      .phase-grid { grid-template-columns: 1fr; gap: 10px; }
-      .task-count { font-size: 20px; }
-      .progress-pct { font-size: 36px; }
-    }
-  </style>
+  html { font-size: 14px; }
+  html, body { height: 100%; }
+  body { background:var(--canvas); color:var(--ink); min-height:100vh;
+         -webkit-font-smoothing:antialiased; transition:background 0.25s, color 0.25s; overflow-x:auto; }
+
+  html { font-size: 14px; }
+  body { background: var(--canvas); color: var(--ink); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+  /* ═══════════════════════════════════════════
+     AUTH — split-panel layout
+  ═══════════════════════════════════════════ */
+  .auth-wrap {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 380px 1fr;
+  }
+
+  .auth-panel-left {
+    background: var(--brand);
+    background-image:
+      radial-gradient(ellipse 60% 50% at 80% 20%, rgba(26,74,155,.55) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 60% at 20% 80%, rgba(15,43,91,.8) 0%, transparent 70%);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 3rem 3.5rem;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .auth-panel-left::before {
+    content: '';
+    position: absolute;
+    right: -80px; bottom: -80px;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,.06);
+  }
+  .auth-panel-left::after {
+    content: '';
+    position: absolute;
+    right: -40px; bottom: -40px;
+    width: 260px; height: 260px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,.08);
+  }
+
+  .auth-left-logo { display: flex; align-items: center; gap: 12px; }
+  .auth-left-logomark {
+    width: 44px; height: 44px;
+    background: rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.18);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(8px);
+  }
+  .auth-left-logomark svg { width: 22px; height: 22px; }
+  .auth-left-brand { font-size: 1.15rem; font-weight: 600; letter-spacing: -0.02em; }
+  .auth-left-tag   { font-size: 0.72rem; opacity: 0.55; font-weight: 400; margin-top: 1px; }
+
+  .auth-left-body { position: relative; z-index: 1; }
+  .auth-left-headline {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1.15;
+    margin-bottom: 1rem;
+  }
+  .auth-left-sub {
+    font-size: 0.88rem;
+    opacity: 0.65;
+    line-height: 1.7;
+    max-width: 320px;
+  }
+
+  .auth-left-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 2.5rem;
+    position: relative; z-index: 1;
+  }
+  .auth-stat {
+    background: rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.10);
+    border-radius: var(--r);
+    padding: 1rem 1.25rem;
+    backdrop-filter: blur(6px);
+  }
+  .auth-stat-val { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.04em; line-height: 1; }
+  .auth-stat-lbl { font-size: 0.72rem; opacity: 0.55; margin-top: 4px; font-weight: 400; }
+
+  .auth-left-footer {
+    font-size: 0.72rem;
+    opacity: 0.35;
+    position: relative; z-index: 1;
+  }
+
+  .auth-panel-right {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--white);
+    padding: 3rem 2.5rem;
+  }
+
+  .auth-form-wrap { width: 100%; max-width: 380px; }
+
+  .auth-form-logo {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 2.5rem;
+  }
+  .auth-form-logomark {
+    width: 36px; height: 36px;
+    background: var(--brand);
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .auth-form-logomark svg { width: 18px; height: 18px; }
+  .auth-form-brand { font-size: 1.05rem; font-weight: 600; color: var(--brand); letter-spacing: -0.02em; }
+
+  .auth-eyebrow {
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--brand-mid);
+    margin-bottom: 0.5rem;
+  }
+  .auth-heading {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.04em;
+    line-height: 1.2;
+    margin-bottom: 0.5rem;
+  }
+  .auth-sub-text {
+    font-size: 0.85rem;
+    color: var(--ink3);
+    line-height: 1.6;
+    margin-bottom: 2rem;
+  }
+
+  .divider-line {
+    height: 1px;
+    background: var(--line);
+    margin: 1.75rem 0;
+  }
+
+  /* FIELDS */
+  .field { margin-bottom: 1.1rem; }
+  .field label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--ink2);
+    margin-bottom: 5px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .field input {
+    width: 100%;
+    padding: 0.7rem 0.9rem;
+    border: 1.5px solid var(--line2);
+    border-radius: var(--r-sm);
+    font-size: 0.88rem;
+    font-family: inherit;
+    color: var(--ink);
+    background: var(--white);
+    transition: border-color 0.18s, box-shadow 0.18s;
+    outline: none;
+  }
+  .field input:focus {
+    border-color: var(--brand-mid);
+    box-shadow: 0 0 0 3px var(--brand-glow);
+  }
+  .field input::placeholder { color: var(--ink4); }
+
+  .pw-strength { height: 3px; border-radius: 2px; margin-top: 6px; background: var(--line); overflow: hidden; }
+  .pw-strength-fill { height: 100%; border-radius: 2px; transition: width 0.3s, background 0.3s; }
+  .pw-hint { font-size: 0.72rem; color: var(--ink3); margin-top: 4px; }
+
+  /* PRIMARY BUTTON */
+  .btn {
+    width: 100%;
+    padding: 0.78rem 1rem;
+    background: var(--brand);
+    color: white;
+    border: none;
+    border-radius: var(--r-sm);
+    font-size: 0.88rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.18s, box-shadow 0.18s, transform 0.1s;
+    letter-spacing: -0.01em;
+  }
+  .btn:hover { background: var(--brand-mid); box-shadow: 0 4px 14px var(--brand-glow); }
+  .btn:active { transform: scale(0.99); }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .btn.secondary {
+    background: var(--canvas);
+    color: var(--ink2);
+    border: 1.5px solid var(--line2);
+    box-shadow: none;
+  }
+  .btn.secondary:hover { background: var(--canvas2); }
+
+  .auth-note { font-size: 0.78rem; color: var(--ink3); text-align: center; margin-top: 1.25rem; line-height: 1.5; }
+  .auth-note a { color: var(--brand-mid); cursor: pointer; text-decoration: none; font-weight: 500; }
+  .auth-note a:hover { text-decoration: underline; }
+
+  .alert { padding: 0.7rem 0.9rem; border-radius: var(--r-sm); font-size: 0.82rem; margin-bottom: 1rem; }
+  .alert.error { background: var(--danger-bg); color: var(--danger); border: 1px solid #f5c2c2; }
+  .alert.success-alert { background: var(--ok-bg); color: var(--ok); border: 1px solid #a8d9c0; }
+
+
+  /* auth stats grid + form inner helpers */
+  .auth-stats-grid {
+    display:grid; grid-template-columns:1fr 1fr; gap:0.65rem; margin-top:1.75rem;
+  }
+  .auth-stat {
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.11);
+    border-radius:var(--r); padding:0.8rem 1rem;
+  }
+  .auth-stat-val { font-size:1.45rem; font-weight:700; letter-spacing:-0.04em; line-height:1; }
+  .auth-stat-lbl { font-size:0.68rem; opacity:0.5; margin-top:3px; font-weight:400; }
+  .auth-left-footer { font-size:0.65rem; opacity:0.28; position:relative; z-index:1; }
+  .auth-form-inner { width:100%; max-width:360px; }
+  .auth-form-logomark-wrap { display:flex; align-items:center; gap:9px; margin-bottom:2.25rem; }
+  .auth-form-logomark {
+    width:30px; height:30px; background:var(--brand);
+    border-radius:7px; display:flex; align-items:center; justify-content:center;
+    flex-shrink:0; transition:background 0.25s;
+  }
+  .auth-form-logomark svg { width:15px; height:15px; display:block; }
+  .auth-form-brand-name { font-size:0.92rem; font-weight:700; color:var(--brand); letter-spacing:-0.02em; transition:color 0.25s; }
+  .auth-eyebrow { font-size:0.63rem; font-weight:700; text-transform:uppercase; letter-spacing:0.14em; color:var(--brand-mid); margin-bottom:0.3rem; }
+  .auth-heading { font-size:1.5rem; font-weight:700; color:var(--ink); letter-spacing:-0.04em; line-height:1.2; margin-bottom:0.35rem; }
+  .auth-sub-text { font-size:0.8rem; color:var(--ink3); line-height:1.6; margin-bottom:1.6rem; }
+  .auth-left-top { display:flex; align-items:center; gap:12px; position:relative; z-index:1; }
+  .auth-left-wordmark { font-size:1.05rem; font-weight:700; letter-spacing:-0.02em; }
+  .auth-left-tagline  { font-size:0.68rem; opacity:0.5; font-weight:400; margin-top:2px; }
+  .auth-left-mid { position:relative; z-index:1; }
+  .auth-left-headline { font-size:1.8rem; font-weight:700; letter-spacing:-0.04em; line-height:1.18; margin-bottom:0.875rem; }
+  .auth-left-sub { font-size:0.83rem; opacity:0.6; line-height:1.7; max-width:280px; }
+  .auth-left-logomark {
+    width:38px; height:38px;
+    background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.22);
+    border-radius:9px;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .auth-left-logomark svg { width:18px; height:18px; display:block; }
+
+  /* dark toggle button */
+  .dark-toggle {
+    width:34px; height:34px; background:none;
+    border:1px solid var(--line); border-radius:var(--r-sm);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; color:var(--ink3);
+    transition:background 0.15s, color 0.15s, border-color 0.15s; flex-shrink:0;
+  }
+  .dark-toggle:hover { background:var(--canvas2); color:var(--ink); border-color:var(--line2); }
+  .dark-toggle svg { width:15px; height:15px; }
+
+  /* Auth is always two-column — scroll on narrow screens */
+  .auth-wrap { min-width: 700px; }
+  @media (max-width:700px) {
+    .auth-wrap { min-width: unset; grid-template-columns: 1fr; }
+    .auth-panel-left { display: none; }
+    .auth-panel-right { min-height: 100vh; padding: 2rem 1.5rem; }
+  }
+
+  /* ═══════════════════════════════════════════
+     APP SHELL
+  ═══════════════════════════════════════════ */
+  .app { display: none; min-height: 100vh; flex-direction: column; background: var(--canvas); }
+  .app.visible { display: flex; }
+
+  /* TOPBAR */
+  .topbar {
+    height: 58px;
+    background: var(--white);
+    border-bottom: 1px solid var(--line);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    box-shadow: 0 1px 0 var(--line);
+  }
+
+  .topbar-left { display: flex; align-items: center; gap: 0; }
+
+  .topbar-logo-wrap {
+    display: flex; align-items: center; gap: 0;
+    padding-right: 1.25rem;
+    border-right: 1px solid var(--line);
+    margin-right: 1.25rem;
+  }
+  .topbar-logo-mark {
+    width: 30px; height: 30px;
+    background: var(--brand);
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .topbar-logo-mark svg { width: 16px; height: 16px; }
+  .topbar-brand { font-size: 0.92rem; font-weight: 700; color: var(--brand); letter-spacing: -0.02em; }
+
+  .topbar-project-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 0.75rem; font-weight: 500; color: var(--ink3);
+    background: var(--canvas2);
+    border: 1px solid var(--line);
+    border-radius: 50px;
+    padding: 3px 10px;
+  }
+  .topbar-project-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--ok); }
+
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+
+  .topbar-icon-btn {
+    width: 34px; height: 34px;
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--ink3);
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    position: relative;
+  }
+  .topbar-icon-btn:hover { background: var(--canvas2); color: var(--ink); border-color: var(--line2); }
+  .topbar-icon-btn svg { width: 16px; height: 16px; }
+
+  .notif-badge {
+    position: absolute; top: -4px; right: -4px;
+    min-width: 16px; height: 16px;
+    background: #DC2626;
+    border: 2px solid var(--white);
+    border-radius: 50px;
+    font-size: 0.6rem; font-weight: 700;
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0 3px;
+  }
+
+  .topbar-divider { width: 1px; height: 22px; background: var(--line); }
+
+  .user-chip {
+    display: flex; align-items: center; gap: 8px;
+    padding: 4px 12px 4px 5px;
+    background: var(--canvas);
+    border: 1px solid var(--line);
+    border-radius: 50px;
+    cursor: default;
+  }
+  .user-chip-name { font-size: 0.8rem; font-weight: 500; color: var(--ink2); }
+
+  .avatar {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.62rem; font-weight: 700; color: white;
+    flex-shrink: 0;
+  }
+
+  .logout-btn {
+    height: 32px;
+    padding: 0 14px;
+    background: none;
+    border: 1px solid var(--line2);
+    border-radius: var(--r-sm);
+    font-size: 0.78rem; font-weight: 500;
+    font-family: inherit; color: var(--ink3);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .logout-btn:hover { background: var(--canvas2); color: var(--ink); border-color: var(--line2); }
+
+  /* Compat aliases */
+  .notif-btn { background: none; border: none; cursor: pointer; padding: 0; display: flex; }
+
+  /* ═══════════════════════════════════════════
+     MAIN CONTENT
+  ═══════════════════════════════════════════ */
+  .main { flex: 1; padding: 2rem 2.5rem; max-width: 1440px; margin: 0 auto; width: 100%; }
+
+  /* PAGE HEADER */
+  .page-header { margin-bottom: 1.75rem; display: flex; align-items: flex-end; justify-content: space-between; }
+  .page-title { font-size: 1.4rem; font-weight: 700; color: var(--ink); letter-spacing: -0.04em; }
+  .page-sub { font-size: 0.82rem; color: var(--ink3); margin-top: 3px; }
+  .page-header-right { font-size: 0.78rem; color: var(--ink3); display: flex; align-items: center; gap: 6px; }
+
+  /* ═══════════════════════════════════════════
+     METRIC CARDS — condensed executive row
+  ═══════════════════════════════════════════ */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1px;
+    margin-bottom: 1.75rem;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    overflow: hidden;
+    box-shadow: var(--sh);
+  }
+
+  .metric-card {
+    background: var(--white);
+    padding: 1.25rem 1.5rem;
+    position: relative;
+  }
+  .metric-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--brand);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .metric-card:hover::before { opacity: 1; }
+
+  .metric-label {
+    font-size: 0.68rem; font-weight: 600;
+    color: var(--ink3); text-transform: uppercase;
+    letter-spacing: 0.08em; margin-bottom: 10px;
+  }
+  .metric-value {
+    font-size: 1.85rem; font-weight: 700;
+    color: var(--ink); letter-spacing: -0.05em; line-height: 1;
+  }
+  .metric-sub { font-size: 0.75rem; color: var(--ink3); margin-top: 5px; }
+  .metric-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px; border-radius: 50px;
+    font-size: 0.68rem; font-weight: 600; margin-top: 8px;
+  }
+  .pill-success { background: var(--ok-bg); color: var(--ok); }
+  .pill-warn { background: var(--warn-bg); color: var(--warn); }
+  .pill-danger { background: var(--danger-bg); color: var(--danger); }
+  .pill-info { background: var(--brand-light); color: var(--brand-mid); }
+
+  /* ═══════════════════════════════════════════
+     SECTION CARDS
+  ═══════════════════════════════════════════ */
+  .section-card {
+    background: var(--white);
+    border-radius: var(--r);
+    border: 1px solid var(--line);
+    margin-bottom: 1.25rem;
+    box-shadow: var(--sh);
+    overflow: hidden;
+  }
+
+  .section-card-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    background: var(--white);
+  }
+
+  .section-card-title {
+    font-size: 0.88rem; font-weight: 600; color: var(--ink);
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  /* ═══════════════════════════════════════════
+     PROGRESS
+  ═══════════════════════════════════════════ */
+  .progress-section {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    padding: 1.5rem;
+    margin-bottom: 1.75rem;
+    box-shadow: var(--sh);
+  }
+
+  .progress-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+  .progress-title { font-size: 0.82rem; font-weight: 600; color: var(--ink2); text-transform: uppercase; letter-spacing: 0.05em; }
+  .progress-pct { font-size: 1.6rem; font-weight: 700; color: var(--ink); letter-spacing: -0.04em; }
+
+  .progress-bar-wrap {
+    background: var(--canvas2);
+    border-radius: 50px; height: 8px; overflow: hidden; margin-bottom: 0.75rem;
+  }
+  .progress-bar-fill {
+    height: 100%; border-radius: 50px;
+    background: linear-gradient(90deg, var(--brand) 0%, var(--brand-mid) 100%);
+    transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .week-bars { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-top: 1rem; }
+  .week-bar-label { font-size: 0.72rem; color: var(--ink3); margin-bottom: 5px; display: flex; justify-content: space-between; font-weight: 500; }
+  .week-bar-track { background: var(--canvas2); border-radius: 3px; height: 5px; overflow: hidden; }
+  .week-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+  .w1-fill { background: var(--jeff-dot); }
+  .w2-fill { background: var(--terr-dot); }
+  .w3-fill { background: var(--jer-dot); }
+  .w4-fill { background: var(--terri-dot); }
+
+  /* ═══════════════════════════════════════════
+     TASK TABLE
+  ═══════════════════════════════════════════ */
+  .task-row-header {
+    display: grid;
+    grid-template-columns: 36px 1fr 140px 110px 100px;
+    gap: 1rem;
+    padding: 0.5rem 1.5rem;
+    background: var(--canvas);
+    border-bottom: 1px solid var(--line);
+    font-size: 0.67rem; font-weight: 600;
+    color: var(--ink3); text-transform: uppercase; letter-spacing: 0.08em;
+  }
+
+  .task-row {
+    display: grid;
+    grid-template-columns: 36px 1fr 140px 110px 100px;
+    align-items: center;
+    padding: 0.8rem 1.5rem;
+    border-bottom: 1px solid var(--line);
+    transition: background 0.1s;
+    gap: 1rem;
+  }
+  .task-row:last-child { border-bottom: none; }
+  .task-row:hover { background: var(--canvas); }
+  .task-row.completed { opacity: 0.55; }
+
+  .task-check {
+    width: 18px; height: 18px;
+    border-radius: 4px;
+    border: 1.5px solid var(--line2);
+    background: var(--white);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.18s;
+    flex-shrink: 0;
+  }
+  .task-check:hover { border-color: var(--brand-mid); background: var(--brand-light); }
+  .task-check.done { background: var(--ok); border-color: var(--ok); }
+  .task-check.done::after {
+    content: '';
+    display: block;
+    width: 4px; height: 7px;
+    border: 1.5px solid white;
+    border-top: none; border-left: none;
+    transform: rotate(45deg) translate(-1px, -1px);
+  }
+
+  .task-name { font-size: 0.83rem; color: var(--ink); line-height: 1.4; font-weight: 450; }
+  .task-name.done { text-decoration: line-through; color: var(--ink3); }
+  .task-deliverable { font-size: 0.72rem; color: var(--ink3); margin-top: 2px; }
+
+  .task-due { font-size: 0.78rem; color: var(--ink2); display: flex; align-items: center; gap: 4px; }
+  .task-due.overdue { color: var(--danger); font-weight: 600; }
+  .task-due.due-soon { color: var(--warn); font-weight: 600; }
+
+  .task-status-badge {
+    padding: 2px 9px; border-radius: 50px;
+    font-size: 0.68rem; font-weight: 600; text-align: center; letter-spacing: 0.03em;
+    display: inline-block;
+  }
+  .status-todo   { background: var(--canvas2); color: var(--ink3); }
+  .status-inprog { background: var(--brand-light); color: var(--brand-mid); }
+  .status-done   { background: var(--ok-bg); color: var(--ok); }
+  .status-behind { background: var(--danger-bg); color: var(--danger); }
+  .status-atrisk { background: var(--warn-bg); color: var(--warn); }
+
+  .owner-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 9px; border-radius: 50px;
+    font-size: 0.72rem; font-weight: 500;
+  }
+  .task-owner-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ═══════════════════════════════════════════
+     TABS
+  ═══════════════════════════════════════════ */
+  .tab-row {
+    display: flex; gap: 0;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .tab-btn {
+    padding: 0.6rem 1.25rem;
+    border: none; border-bottom: 2px solid transparent;
+    background: none;
+    font-size: 0.82rem; font-family: inherit; font-weight: 500;
+    color: var(--ink3); cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: -1px;
+  }
+  .tab-btn:hover { color: var(--ink); }
+  .tab-btn.active { color: var(--brand); border-bottom-color: var(--brand); font-weight: 600; }
+
+  /* ═══════════════════════════════════════════
+     NOTIFICATIONS PANEL
+  ═══════════════════════════════════════════ */
+  .notif-panel {
+    position: fixed; top: 66px; right: 1.5rem;
+    width: 340px;
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    box-shadow: var(--sh-lg);
+    z-index: 300; display: none;
+    overflow: hidden; max-height: 80vh; overflow-y: auto;
+  }
+  .notif-panel.open { display: block; }
+  .notif-panel-header {
+    padding: 0.875rem 1.25rem;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.82rem; font-weight: 600; color: var(--ink);
+    display: flex; justify-content: space-between; align-items: center;
+    position: sticky; top: 0; background: var(--white); z-index: 1;
+  }
+  .notif-item {
+    padding: 0.875rem 1.25rem;
+    border-bottom: 1px solid var(--line);
+    display: flex; gap: 10px; align-items: flex-start;
+  }
+  .notif-item:last-child { border-bottom: none; }
+  .notif-icon {
+    width: 30px; height: 30px; border-radius: var(--r-sm);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; font-size: 13px; font-weight: 700;
+  }
+  .notif-title { font-size: 0.8rem; font-weight: 500; color: var(--ink); line-height: 1.4; }
+  .notif-time  { font-size: 0.72rem; color: var(--ink3); margin-top: 2px; }
+
+  /* ═══════════════════════════════════════════
+     TERRI VIEW
+  ═══════════════════════════════════════════ */
+  .terri-header {
+    background: var(--brand);
+    background-image: radial-gradient(ellipse 60% 80% at 90% 50%, rgba(26,74,155,.6) 0%, transparent 70%);
+    border-radius: var(--r);
+    padding: 2rem 2.5rem;
+    color: white;
+    margin-bottom: 1.75rem;
+    border: 1px solid rgba(255,255,255,.06);
+  }
+  .terri-header-title { font-size: 1.3rem; font-weight: 700; letter-spacing: -0.04em; margin-bottom: 2px; }
+  .terri-header-sub { font-size: 0.82rem; opacity: 0.65; }
+  .terri-big-progress {
+    margin-top: 1.5rem;
+    background: rgba(255,255,255,.15);
+    border-radius: 50px; height: 10px; overflow: hidden;
+  }
+  .terri-big-fill {
+    height: 100%; border-radius: 50px;
+    background: rgba(255,255,255,.85);
+    transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .terri-pct-label { display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.75rem; opacity: 0.7; }
+
+  .milestone-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 0.875rem 1.5rem;
+    border-bottom: 1px solid var(--line);
+    transition: background 0.12s;
+  }
+  .milestone-item:last-child { border-bottom: none; }
+  .milestone-item:hover { background: var(--canvas); }
+
+  .milestone-circle {
+    width: 24px; height: 24px; border-radius: 50%;
+    border: 1.5px solid var(--line2);
+    background: var(--white);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.6rem; font-weight: 700;
+    flex-shrink: 0; margin-top: 1px; color: var(--ink3);
+    transition: all 0.2s;
+  }
+  .milestone-circle.done { background: var(--ok); border-color: var(--ok); color: white; }
+  .milestone-circle.done::after { content: '✓'; font-size: 0.65rem; }
+  .milestone-circle.done span { display: none; }
+  .milestone-circle.inprog { border-color: var(--brand-mid); background: var(--brand-light); color: var(--brand-mid); }
+  .milestone-name { font-size: 0.85rem; font-weight: 500; color: var(--ink); }
+  .milestone-desc { font-size: 0.77rem; color: var(--ink3); margin-top: 2px; line-height: 1.5; }
+  .milestone-meta { font-size: 0.72rem; color: var(--ink3); margin-top: 5px; display: flex; gap: 8px; align-items: center; }
+
+  /* ═══════════════════════════════════════════
+     MODAL
+  ═══════════════════════════════════════════ */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(10,15,30,.5);
+    backdrop-filter: blur(4px);
+    z-index: 500;
+    display: flex; align-items: center; justify-content: center;
+    padding: 1.5rem;
+  }
+  .modal-card {
+    background: var(--white);
+    border-radius: var(--r-lg);
+    padding: 2rem;
+    width: 100%; max-width: 460px;
+    box-shadow: var(--sh-lg);
+    max-height: 90vh; overflow-y: auto;
+    border: 1px solid var(--line);
+  }
+  .modal-title { font-size: 1.05rem; font-weight: 700; color: var(--ink); margin-bottom: 0.25rem; letter-spacing: -0.03em; }
+  .modal-sub { font-size: 0.8rem; color: var(--ink3); margin-bottom: 1.5rem; line-height: 1.5; }
+  .user-row { display: flex; align-items: center; gap: 12px; padding: 0.8rem 0; border-bottom: 1px solid var(--line); }
+  .user-row:last-child { border-bottom: none; }
+  .user-row-info { flex: 1; }
+  .user-row-name { font-size: 0.85rem; font-weight: 500; color: var(--ink); }
+  .user-row-email { font-size: 0.72rem; color: var(--ink3); margin-top: 2px; }
+  .reset-btn {
+    padding: 4px 12px; border-radius: var(--r-sm);
+    border: 1px solid var(--line2); background: var(--white);
+    font-size: 0.75rem; font-family: inherit; color: var(--ink2);
+    cursor: pointer; transition: all 0.15s; white-space: nowrap;
+  }
+  .reset-btn:hover { background: var(--danger-bg); color: var(--danger); border-color: #f5c2c2; }
+  .reset-btn.done-btn { background: var(--ok-bg); color: var(--ok); border-color: #a8d9c0; cursor: default; }
+
+  /* Topbar buttons */
+  .topbar-acct-btn {
+    height: 32px; padding: 0 12px;
+    background: none; border: 1px solid var(--line2);
+    border-radius: var(--r-sm);
+    font-size: 0.78rem; font-weight: 500; font-family: inherit;
+    color: var(--ink3); cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    transition: all 0.15s;
+  }
+  .topbar-acct-btn:hover { background: var(--canvas2); color: var(--ink); }
+  .topbar-acct-btn svg { width: 14px; height: 14px; }
+
+  /* ═══════════════════════════════════════════
+     INSIGHT DRAWER
+  ═══════════════════════════════════════════ */
+  .insight-toggle {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 0.75rem; font-weight: 500; color: var(--brand-mid);
+    background: var(--brand-light); border: 1px solid rgba(26,74,155,.18);
+    border-radius: var(--r-sm); padding: 4px 12px;
+    cursor: pointer; transition: all 0.15s; white-space: nowrap; font-family: inherit;
+  }
+  .insight-toggle:hover { background: var(--brand); color: white; border-color: var(--brand); }
+  .insight-toggle.open  { background: var(--brand); color: white; border-color: var(--brand); }
+  .insight-toggle svg   { transition: transform 0.2s; flex-shrink: 0; }
+  .insight-toggle.open svg { transform: rotate(180deg); }
+  .insight-drawer {
+    border-top: 1px solid var(--line); background: var(--canvas);
+    overflow: hidden; max-height: 0;
+    transition: max-height 0.38s cubic-bezier(0.4,0,0.2,1);
+  }
+  .insight-drawer.open { max-height: 3000px; }
+  .insight-inner {
+    padding: 1.25rem 1.5rem;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem;
+  }
+  .insight-block {
+    background: var(--white);
+    border-radius: var(--r-sm);
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--line);
+    border-top: 3px solid;
+  }
+  .insight-block.strategy { border-top-color: var(--brand-mid); }
+  .insight-block.practice { border-top-color: var(--terr-dot); }
+  .insight-block.example  { border-top-color: #B45309; }
+  .insight-label {
+    font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.1em; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .insight-block.strategy .insight-label { color: var(--brand-mid); }
+  .insight-block.practice .insight-label { color: var(--terr-dot); }
+  .insight-block.example  .insight-label { color: #B45309; }
+  .insight-points { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+  .insight-points li {
+    font-size: 0.79rem; color: var(--ink2); line-height: 1.55;
+    padding-left: 14px; position: relative;
+  }
+  .insight-points li::before {
+    content: ''; position: absolute; left: 0; top: 7px;
+    width: 4px; height: 4px; border-radius: 50%; background: currentColor; opacity: 0.4;
+  }
+  .insight-block.strategy .insight-points li::before { color: var(--brand-mid); }
+  .insight-block.practice .insight-points li::before { color: var(--terr-dot); }
+  .insight-block.example  .insight-points li::before { color: #B45309; }
+
+  /* ═══════════════════════════════════════════
+     COMMENTS
+  ═══════════════════════════════════════════ */
+  .comments-section { padding: 0; }
+  .empty-comments { font-size: 0.78rem; color: var(--ink3); font-style: italic; margin-bottom: 0.75rem; }
+  .comment-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 1rem; }
+  .comment-item { display: flex; gap: 9px; align-items: flex-start; }
+  .comment-avatar {
+    width: 24px; height: 24px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.6rem; font-weight: 700; color: white; flex-shrink: 0; margin-top: 1px;
+  }
+  .comment-body { flex: 1; }
+  .comment-meta {
+    font-size: 0.7rem; color: var(--ink3); margin-bottom: 3px;
+    display: flex; gap: 6px; align-items: center;
+  }
+  .comment-author { font-weight: 600; color: var(--ink2); }
+  .comment-text {
+    font-size: 0.8rem; color: var(--ink); line-height: 1.55;
+    background: var(--white); border: 1px solid var(--line);
+    border-radius: var(--r-sm); padding: 6px 10px;
+  }
+  .comment-input-wrap { display: flex; gap: 8px; align-items: flex-end; }
+  .comment-input {
+    flex: 1; padding: 7px 10px;
+    border: 1.5px solid var(--line2); border-radius: var(--r-sm);
+    font-size: 0.82rem; font-family: inherit; color: var(--ink);
+    resize: none; outline: none;
+    transition: border-color 0.18s, box-shadow 0.18s;
+    min-height: 36px; max-height: 120px; background: var(--white);
+  }
+  .comment-input:focus { border-color: var(--brand-mid); box-shadow: 0 0 0 3px var(--brand-glow); }
+  .comment-send {
+    padding: 7px 14px; background: var(--brand); color: white;
+    border: none; border-radius: var(--r-sm);
+    font-size: 0.78rem; font-family: inherit; font-weight: 600;
+    cursor: pointer; transition: background 0.15s; white-space: nowrap;
+  }
+  .comment-send:hover { background: var(--brand-mid); }
+  .comment-toggle {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 0.75rem; color: var(--ink3);
+    background: none; border: none; cursor: pointer;
+    padding: 4px 1.5rem; font-family: inherit; transition: color 0.15s;
+    border-top: 1px solid var(--line); width: 100%; text-align: left;
+  }
+  .comment-toggle:hover { color: var(--brand); background: var(--canvas); }
+
+  /* user mgmt action buttons */
+  .umgmt-pw-btn, .umgmt-del-btn {
+    display:flex; align-items:center; gap:5px;
+    padding:7px 14px; border-radius:6px;
+    font-size:0.75rem; font-weight:600; font-family:inherit;
+    cursor:pointer; width:100%; justify-content:center;
+    transition:all 0.15s; line-height:1;
+  }
+  .umgmt-pw-btn { border:1.5px solid var(--line2); background:var(--white); color:var(--ink2); }
+  .umgmt-pw-btn:hover { background:var(--brand-light); border-color:var(--brand-mid); color:var(--brand-mid); }
+  .umgmt-del-btn { border:1.5px solid rgba(155,28,28,0.35); background:var(--white); color:var(--danger); }
+  .umgmt-del-btn:hover { background:var(--danger-bg); }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+  ═══════════════════════════════════════════ */
+  @media (max-width: 900px) {
+    .auth-wrap { grid-template-columns: 1fr; }
+    .auth-panel-left { display: none; }
+  }
+  @media (max-width: 768px) {
+    .main { padding: 1rem; }
+    .task-row { grid-template-columns: 32px 1fr 90px; }
+    .task-row-header { grid-template-columns: 32px 1fr 90px; }
+    .task-due { display: none; }
+    .metrics-grid { grid-template-columns: 1fr 1fr; }
+    .week-bars { grid-template-columns: 1fr 1fr; }
+    .topbar { padding: 0 1rem; }
+  }
+
+  /* ═══════════════════════════════════════════
+     UTILS
+  ═══════════════════════════════════════════ */
+  .hidden { display: none !important; }
+  .flex { display: flex; }
+  .section-divider { height: 1px; background: var(--line); margin: 1.25rem 0; }
+  .empty-state { text-align: center; padding: 3rem 2rem; color: var(--ink3); }
+  .empty-title { font-size: 0.92rem; font-weight: 500; margin-bottom: 4px; }
+  .empty-sub { font-size: 0.8rem; }
+  .today-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--ok); display: inline-block; }
+</style>
+<script>
+var STRATUS_LOGO = "data:image/jpeg;base64,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";
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.stratus-logo-img').forEach(function(img) {
+    img.src = STRATUS_LOGO;
+  });
+});
+</script>
 </head>
 <body>
 
-<!-- Modal -->
-<div class="overlay" id="overlay" style="display:none;">
-  <div class="modal">
-    <div class="modal-title">Admin Login</div>
-    <div class="modal-sub">Enter your password to manage tasks and post updates.</div>
-    <input type="password" class="modal-input" id="pw-input" placeholder="Password" />
-    <div class="modal-error" id="pw-error" style="display:none;">Incorrect password. Please try again.</div>
-    <div class="modal-btns">
-      <button class="modal-btn-primary" onclick="submitLogin()">Sign In</button>
-      <button class="modal-btn-secondary" onclick="closeLogin()">Cancel</button>
+<!-- ══════════════════════════════════════════
+     AUTH: REGISTRATION
+══════════════════════════════════════════ -->
+<div class="auth-wrap hidden" id="screen-register">
+  <div class="auth-panel-left">
+    <div class="auth-left-top">
+      <img src="" class="stratus-logo-img" alt="StratusAi" style="height:44px;width:auto;display:block;object-fit:contain;flex-shrink:0">
+    </div>
+    <div class="auth-left-mid">
+      <div class="auth-left-headline">Levitate Logic<br>Phase 1 Dashboard</div>
+      <div class="auth-left-sub">Real-time task tracking, deliverable management, and project intelligence for the engagement team.</div>
+      <div class="auth-stats-grid">
+        <div class="auth-stat"><div class="auth-stat-val">4</div><div class="auth-stat-lbl">Week engagement</div></div>
+        <div class="auth-stat"><div class="auth-stat-val">15</div><div class="auth-stat-lbl">Deliverables</div></div>
+        <div class="auth-stat"><div class="auth-stat-val">3</div><div class="auth-stat-lbl">Team members</div></div>
+        <div class="auth-stat"><div class="auth-stat-val">12h</div><div class="auth-stat-lbl">Saved weekly</div></div>
+      </div>
+    </div>
+    <div class="auth-left-footer">Confidential &middot; StratusAi LLC &middot; Prepared for Levitate Logic</div>
+  </div>
+  <div class="auth-panel-right">
+    <div class="auth-form-inner">
+      <div class="auth-form-logomark-wrap" style="margin-bottom:2rem">
+        <img src="" class="stratus-logo-img" alt="StratusAi" style="height:40px;width:auto;display:block;object-fit:contain">
+      </div>
+      <div class="auth-eyebrow">New account</div>
+      <div class="auth-heading">Create your account</div>
+      <div class="auth-sub-text">Admins: Jeff, Terrell, or Jeremy &nbsp;&middot;&nbsp; Client: Terri</div>
+      <div id="reg-alert" class="alert error hidden"></div>
+      <div class="field">
+        <label>Username</label>
+        <input type="text" id="reg-username" placeholder="Jeff, Terrell, Jeremy, or Terri" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>Email address</label>
+        <input type="email" id="reg-email" placeholder="you@example.com">
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="reg-password" placeholder="At least 8 characters" oninput="checkPwStrength(this.value)">
+        <div class="pw-strength"><div class="pw-strength-fill" id="pw-strength-fill" style="width:0%"></div></div>
+        <div class="pw-hint" id="pw-hint">Choose a strong password</div>
+      </div>
+      <div class="field">
+        <label>Confirm password</label>
+        <input type="password" id="reg-password2" placeholder="Repeat your password">
+      </div>
+      <button class="btn" onclick="handleRegister()">Create account</button>
+      <p class="auth-note">Already registered? <a onclick="showScreen('login')">Sign in instead</a></p>
     </div>
   </div>
 </div>
 
-<!-- Header -->
-<div class="header">
-  <div>
-    <div class="header-brand-tag">StratusAi · Client Portal</div>
-    <div class="header-title">Levitate Logic</div>
-    <div class="header-sub">Project Progress Tracker · April 2026</div>
+<!-- ══════════════════════════════════════════
+     AUTH: LOGIN
+══════════════════════════════════════════ -->
+<div class="auth-wrap" id="screen-login">
+  <div class="auth-panel-left">
+    <div class="auth-left-top">
+      <img src="" class="stratus-logo-img" alt="StratusAi" style="height:44px;width:auto;display:block;object-fit:contain;flex-shrink:0">
+    </div>
+    <div class="auth-left-mid">
+      <div class="auth-left-headline">Levitate Logic<br>Phase 1 Dashboard</div>
+      <div class="auth-left-sub">Real-time task tracking, deliverable management, and project intelligence for the engagement team.</div>
+      <div class="auth-stats-grid">
+        <div class="auth-stat"><div class="auth-stat-val">4</div><div class="auth-stat-lbl">Week engagement</div></div>
+        <div class="auth-stat"><div class="auth-stat-val">15</div><div class="auth-stat-lbl">Deliverables</div></div>
+        <div class="auth-stat"><div class="auth-stat-val">3</div><div class="auth-stat-lbl">Team members</div></div>
+        <div class="auth-stat"><div class="auth-stat-val">12h</div><div class="auth-stat-lbl">Saved weekly</div></div>
+      </div>
+    </div>
+    <div class="auth-left-footer">Confidential &middot; StratusAi LLC &middot; Prepared for Levitate Logic</div>
   </div>
-  <button class="admin-btn" id="admin-btn" onclick="toggleAdmin()">
-    <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-      <rect x="1.5" y="5.5" width="10" height="7" rx="1.5" stroke="currentColor" stroke-width="1.2"/>
-      <path d="M4 5.5V4A2.5 2.5 0 019 4v1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-    </svg>
-    <span id="admin-btn-label">Admin Login</span>
-  </button>
+  <div class="auth-panel-right">
+    <div class="auth-form-inner">
+      <div class="auth-form-logomark-wrap" style="margin-bottom:2rem">
+        <img src="" class="stratus-logo-img" alt="StratusAi" style="height:40px;width:auto;display:block;object-fit:contain">
+      </div>
+      <div class="auth-eyebrow">Secure access</div>
+      <div class="auth-heading">Welcome back</div>
+      <div class="auth-sub-text">Sign in to the Phase 1 project dashboard.</div>
+      <div id="login-alert" class="alert error hidden"></div>
+      <div class="field">
+        <label>Username</label>
+        <input type="text" id="login-username" placeholder="Your username" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="login-password" placeholder="Your password">
+      </div>
+      <button class="btn" onclick="handleLogin()">Sign in</button>
+      <p class="auth-note">New here? <a onclick="showScreen('register')">Create an account</a></p>
+    </div>
+  </div>
 </div>
 
-<!-- Body -->
-<div class="body">
+<!-- otp screen removed — password auth used instead -->
+<div class="auth-wrap hidden" id="screen-otp"></div>
 
-  <!-- Overall Progress -->
-  <div class="card progress-hero">
-    <div class="progress-hero-top">
-      <div>
-        <div class="progress-label">Overall Project Progress</div>
-        <div>
-          <span class="progress-pct" id="overall-pct">0%</span>
-          <span class="status-badge" id="status-badge">Not Started</span>
+<!-- ══════════════════════════════════════════
+     MAIN APP
+══════════════════════════════════════════ -->
+<div class="app" id="app">
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-logo-wrap">
+        <img src="" class="stratus-logo-img" alt="StratusAi" style="height:36px;width:auto;display:block;object-fit:contain;flex-shrink:0">
+      </div>
+      <div class="topbar-project-pill">
+        <span class="topbar-project-dot"></span>
+        Levitate Logic &mdash; Phase 1
+      </div>
+    </div>
+    <div class="topbar-right">
+      <button class="dark-toggle" id="dark-toggle-btn" onclick="toggleDarkMode()" title="Toggle dark mode" style="width:34px;height:34px;background:none;border:1px solid var(--line);border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink3);transition:background 0.15s,color 0.15s;flex-shrink:0">
+        <svg id="dark-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;display:block"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg id="dark-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+      <div id="topbar-notif-wrap" class="hidden">
+        <button class="topbar-icon-btn" onclick="toggleNotifPanel()" id="notif-btn" title="Notifications">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          <span class="notif-badge" id="notif-badge" style="display:none">0</span>
+        </button>
+      </div>
+      <div id="topbar-acct-wrap" class="hidden">
+        <button class="topbar-acct-btn" onclick="openUserMgmt()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Users
+        </button>
+      </div>
+      <div class="topbar-divider"></div>
+      <div class="user-chip">
+        <div class="avatar" id="topbar-avatar"></div>
+        <span class="user-chip-name" id="topbar-username"></span>
+      </div>
+      <button class="logout-btn" onclick="handleLogout()">Sign out</button>
+    </div>
+  </div>
+
+  <!-- User management modal (admins only) -->
+  <div class="modal-overlay hidden" id="user-mgmt-modal" onclick="closeUserMgmtOnOverlay(event)">
+    <div class="modal-card" style="max-width:520px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.25rem">
+        <div class="modal-title" style="font-size:1.1rem;font-weight:700">User Management</div>
+        <button onclick="closeUserMgmt()" style="background:none;border:none;cursor:pointer;color:var(--ink3);font-size:1.2rem;line-height:1;padding:4px 8px;border-radius:4px" title="Close">&times;</button>
+      </div>
+      <div class="modal-sub" style="margin-bottom:1.25rem;padding-bottom:1.25rem;border-bottom:1px solid var(--line)">
+        As an admin you can reset any user's password or fully reset their account.
+      </div>
+      <div style="display:flex;gap:0.75rem;margin-bottom:1.25rem;padding:0.875rem;background:var(--canvas);border-radius:8px;border:1px solid var(--line)">
+        <div style="flex:1">
+          <div style="font-size:0.78rem;font-weight:600;color:var(--ink2);margin-bottom:3px">&#128274; Reset Password</div>
+          <div style="font-size:0.75rem;color:var(--ink3);line-height:1.4">Clears only the password. All task progress and data stays intact. User sets a new password on next login.</div>
+        </div>
+        <div style="width:1px;background:var(--line);flex-shrink:0"></div>
+        <div style="flex:1">
+          <div style="font-size:0.78rem;font-weight:600;color:var(--danger);margin-bottom:3px">&#9888; Reset Account</div>
+          <div style="font-size:0.75rem;color:var(--ink3);line-height:1.4">Removes login credentials entirely. User must re-register. Task completions remain in the project.</div>
         </div>
       </div>
-      <div>
-        <div class="task-count" id="task-count">0<span>/18</span></div>
-        <div class="task-count-label">tasks complete</div>
+      <div id="user-mgmt-list"></div>
+      <div style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--line)">
+        <button class="btn secondary" onclick="closeUserMgmt()" style="width:100%">Close</button>
       </div>
-    </div>
-    <div class="bar-track">
-      <div class="bar-fill" id="overall-bar" style="width:0%;background:#94A3B8;"></div>
-    </div>
-    <div class="phase-grid" id="phase-mini-grid"></div>
-  </div>
-
-  <!-- Phase Accordions -->
-  <div id="phase-list"></div>
-
-  <!-- Activity Feed -->
-  <div class="card" style="margin-top:10px;">
-    <div class="feed-header">
-      <div class="feed-title">Project Updates</div>
-      <div class="feed-lock" id="feed-lock">
-        <svg width="12" height="12" viewBox="0 0 13 13" fill="none">
-          <rect x="1.5" y="5.5" width="10" height="7" rx="1.5" stroke="currentColor" stroke-width="1.2"/>
-          <path d="M4 5.5V4A2.5 2.5 0 019 4v1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-        </svg>
-        Admin only
-      </div>
-    </div>
-    <div class="feed-list" id="feed-list"></div>
-    <div class="post-area" id="post-area" style="display:none;">
-      <textarea class="post-textarea" id="post-draft" rows="3" placeholder="Post a project update…"></textarea>
-      <button class="post-btn" id="post-btn" onclick="postComment()" disabled>Post Update</button>
     </div>
   </div>
 
-  <div class="footer">StratusAi · Intelligent Operations. Simplified. · Progress is saved automatically</div>
+  <!-- Notification panel -->
+  <div class="notif-panel" id="notif-panel">
+    <div class="notif-panel-header">
+      <span>Notifications</span>
+      <span id="notif-count-label" style="font-size:0.78rem;font-weight:400;color:var(--text3)"></span>
+    </div>
+    <div id="notif-items"></div>
+  </div>
+
+  <!-- Main -->
+  <div class="main" id="main-content"></div>
 </div>
 
 <script>
-  const ADMIN_PASSWORD = "StratusAi2026";
-  const TASKS_KEY = "levitate-tasks-v1";
-  const COMMENTS_KEY = "levitate-comments-v1";
+// ══════════════════════════════════════════
+// DATA MODEL
+// ══════════════════════════════════════════
 
-  const PHASES = [
-    {
-      id: 1, name: "Stabilize & Communicate", weeks: "Weeks 1–4",
-      color: "#0DB87A", borderColor: "#0DB87A18",
-      tasks: [
-        { id: "1a", text: "Deploy Calendly/Doodle with Google Calendar + Zoom integration" },
-        { id: "1b", text: "Configure booking pages for all meeting types" },
-        { id: "1c", text: "Implement firm-wide Gmail labeling & filtering system" },
-        { id: "1d", text: "Optimize Slack workspace — channel structure and team norms" },
-        { id: "1e", text: "Reconnect website contact form to HubSpot for lead capture" },
-      ]
-    },
-    {
-      id: 2, name: "Automate & Integrate", weeks: "Weeks 5–10",
-      color: "#2563EB", borderColor: "#2563EB18",
-      tasks: [
-        { id: "2a", text: "Document client onboarding process — convert to ClickUp SOP" },
-        { id: "2b", text: "Activate HubSpot CRM: deal stages, pipeline & contact properties" },
-        { id: "2c", text: "Deploy Zapier: HubSpot deal close → ClickUp task → Drive folder" },
-        { id: "2d", text: "Set up Content Snare for structured client document collection" },
-        { id: "2e", text: "Implement PandaDoc contract templates with HubSpot integration" },
-        { id: "2f", text: "Build Gmail-to-ClickUp email task routing via Zapier" },
-        { id: "2g", text: "Automate monthly grant report email delivery" },
-        { id: "2h", text: "Redesign Google Drive folder architecture & assign ownership" },
-        { id: "2i", text: "Deploy SaneBox for inbox prioritization across all team Gmail accounts" },
-      ]
-    },
-    {
-      id: 3, name: "Scale & Optimize", weeks: "Weeks 11–16+",
-      color: "#7C3AED", borderColor: "#7C3AED18",
-      tasks: [
-        { id: "3a", text: "Assess ShareFile — migrate to Drive or offboard entirely" },
-        { id: "3b", text: "Build ClickUp SOP library for all core team roles & workflows" },
-        { id: "3c", text: "Deploy Loom for video SOPs and reusable training content" },
-        { id: "3d", text: "Implement employee onboarding & offboarding checklists in ClickUp" },
-      ]
-    }
-  ];
+const PROJECT_START = new Date('2026-05-05'); // Monday Week 1
+const TODAY = new Date();                      // Live date
 
-  const SEED_COMMENTS = [
-    { id: 1, author: "StratusAi", initials: "SA", time: "Apr 10, 2026", text: "Discovery memo delivered to Levitate Logic leadership. Phase 1 kick-off call scheduled for April 14th." },
-    { id: 2, author: "StratusAi", initials: "SA", time: "Apr 12, 2026", text: "Phase 1 approved. Beginning Calendly configuration and Gmail labeling system design this week. First deliverables expected by April 18th." },
-  ];
+function addDays(d, n) {
+  const r = new Date(d);
+  r.setDate(r.getDate() + n);
+  return r;
+}
 
-  // --- State ---
-  let tasks = {};
-  let comments = [];
-  let isAdmin = false;
-  let expandedPhase = null;
+function fmtDate(d) {
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
 
-  function loadState() {
-    try {
-      const savedTasks = localStorage.getItem(TASKS_KEY);
-      tasks = savedTasks ? JSON.parse(savedTasks) : null;
-    } catch { tasks = null; }
-    if (!tasks) {
-      tasks = {};
-      PHASES.forEach(p => p.tasks.forEach(t => { tasks[t.id] = false; }));
-    }
-    try {
-      const savedComments = localStorage.getItem(COMMENTS_KEY);
-      comments = savedComments ? JSON.parse(savedComments) : null;
-    } catch { comments = null; }
-    if (!comments) comments = [...SEED_COMMENTS];
+function dayStatus(dueDate) {
+  const diff = Math.floor((dueDate - TODAY) / 86400000);
+  if (diff < 0) return 'behind';
+  if (diff <= 2) return 'at-risk';
+  return 'ok';
+}
+
+// Tasks: id, name, deliverable, owner (jeff/terrell/jeremy), week (1-4), day (Mon-Fri), due, status (todo/inprog/done/behind), description
+const TASKS = [
+  // ── WEEK 1 ──────────────────────────────
+  // Jeff W1
+  { id: 'j1-1', name: 'Build ClickUp project workspace', deliverable: 'ClickUp Workspace Build', owner: 'jeff', week: 1, day: 'Mon', due: addDays(PROJECT_START, 0), status: 'done', desc: 'All spaces, channels, task lists live. Pre-populate Phase 1 deliverables with owners & due dates. Invite client stakeholders to view-only.' },
+  { id: 'j1-2', name: 'Collect system credentials from Levitate Logic', deliverable: 'ClickUp Workspace Build', owner: 'jeff', week: 1, day: 'Mon', due: addDays(PROJECT_START, 0), status: 'done', desc: 'Securely collect and store all access credentials needed for Phase 1 tools.' },
+  { id: 'j1-3', name: 'Begin Calendly configuration — booking pages', deliverable: 'Calendly Setup', owner: 'jeff', week: 1, day: 'Tue', due: addDays(PROJECT_START, 1), status: 'done', desc: 'Build master booking page template first, then duplicate for 1:1, group, and client call types. Connect Google Calendar and Zoom auto-link.' },
+  { id: 'j1-4', name: 'Complete all Calendly booking pages & test flows', deliverable: 'Calendly Setup', owner: 'jeff', week: 1, day: 'Wed', due: addDays(PROJECT_START, 2), status: 'done', desc: 'Set buffer times, email reminders, confirmation redirects. Test every booking flow end-to-end as a simulated client.' },
+  { id: 'j1-5', name: 'Fix errors & prepare Calendly walk-through for Brendela', deliverable: 'Calendly Setup', owner: 'jeff', week: 1, day: 'Thu', due: addDays(PROJECT_START, 3), status: 'done', desc: 'Resolve any test failures. Prepare scenario-based (not feature) walk-through for Brendela.' },
+  { id: 'j1-6', name: 'Research website platform & HubSpot form steps', deliverable: 'Website Form → HubSpot', owner: 'jeff', week: 1, day: 'Fri', due: addDays(PROJECT_START, 4), status: 'done', desc: 'Identify platform, form tool, and reconnection steps before Week 2 deploy.' },
+
+  // Terrell W1
+  { id: 't1-1', name: 'Send pre-kickoff welcome email', deliverable: 'Client Communication', owner: 'terrell', week: 1, day: 'Mon', due: addDays(PROJECT_START, 0), status: 'done', desc: 'Agenda, what to expect, what to prepare. Confirm Terri\'s attendance and kickoff format.' },
+  { id: 't1-2', name: 'Hold Phase 1 kickoff call with Levitate Logic', deliverable: 'Client Communication', owner: 'terrell', week: 1, day: 'Tue', due: addDays(PROJECT_START, 1), status: 'done', desc: 'Walk through ClickUp workspace live. Log all decisions in #client-comms-log. Share Loom recording same day.' },
+  { id: 't1-3', name: 'Begin designing Gmail label taxonomy', deliverable: 'Gmail Labeling System', owner: 'terrell', week: 1, day: 'Wed', due: addDays(PROJECT_START, 2), status: 'done', desc: 'Client, Grant, Admin, Follow-Up, Urgent, and Unclear catch-all. Draft for Jeremy and Terri to review.' },
+  { id: 't1-4', name: 'Walk Brendela through Calendly — live training', deliverable: 'Team Training Sessions', owner: 'terrell', week: 1, day: 'Thu', due: addDays(PROJECT_START, 3), status: 'done', desc: 'Scenario-based session. Record via Loom. Send follow-up recording and one-page cheat sheet same day.' },
+  { id: 't1-5', name: 'Send Week 1 written status update', deliverable: 'Client Communication', owner: 'terrell', week: 1, day: 'Fri', due: addDays(PROJECT_START, 4), status: 'done', desc: 'Format: Done this week / Next week / Need from you. Post in ClickUp #general-updates.' },
+
+  // Jeremy W1
+  { id: 'r1-1', name: 'Build time audit baseline document', deliverable: 'Time Audit Baseline', owner: 'jeremy', week: 1, day: 'Mon-Tue', due: addDays(PROJECT_START, 1), status: 'done', desc: 'Pull discovery memo data. Document hours lost by workflow with dollar value per saving. Two-column before/after format.' },
+  { id: 'r1-2', name: 'Begin HubSpot data audit', deliverable: 'HubSpot Data Audit', owner: 'jeremy', week: 1, day: 'Wed', due: addDays(PROJECT_START, 2), status: 'done', desc: 'Review contacts, deals, pipeline stages. Document what is present, missing, dirty, or incomplete. Flag fields Phase 2 automations rely on.' },
+  { id: 'r1-3', name: 'Complete HubSpot audit document', deliverable: 'HubSpot Data Audit', owner: 'jeremy', week: 1, day: 'Thu-Fri', due: addDays(PROJECT_START, 4), status: 'done', desc: 'Document contact properties, deal stage gaps, records with missing critical fields. Post in #data-research for Jeff.' },
+
+  // ── WEEK 2 ──────────────────────────────
+  // Jeff W2
+  { id: 'j2-1', name: 'Audit website contact form — identify root cause', deliverable: 'Website Form → HubSpot', owner: 'jeff', week: 2, day: 'Mon', due: addDays(PROJECT_START, 7), status: 'inprog', desc: 'Identify platform, form tool, and why submissions stopped routing to HubSpot. Document findings and reconnection steps.' },
+  { id: 'j2-2', name: 'Begin website form → HubSpot reconnection', deliverable: 'Website Form → HubSpot', owner: 'jeff', week: 2, day: 'Tue', due: addDays(PROJECT_START, 8), status: 'todo', desc: 'Add hidden lead-source field to auto-stamp "Website Contact Form" on every new contact record.' },
+  { id: 'j2-3', name: 'Test form reconnection — 3 dummy submissions', deliverable: 'Website Form → HubSpot', owner: 'jeff', week: 2, day: 'Wed', due: addDays(PROJECT_START, 9), status: 'todo', desc: 'Confirm records appear in HubSpot with correct pipeline stage and notification fires.' },
+  { id: 'j2-4', name: 'Build ClickUp internal comms structure for Levitate Logic', deliverable: 'ClickUp Workspace Build', owner: 'jeff', week: 2, day: 'Thu', due: addDays(PROJECT_START, 10), status: 'todo', desc: 'Separate from the Stratus project space. Channels, task lists, and access configured.' },
+  { id: 'j2-5', name: 'Walk Terri through HubSpot lead view', deliverable: 'Website Form → HubSpot', owner: 'jeff', week: 2, day: 'Fri', due: addDays(PROJECT_START, 11), status: 'todo', desc: 'Where new leads land, how to act on them, what the email notification looks like.' },
+
+  // Terrell W2
+  { id: 't2-1', name: 'Present Gmail taxonomy to Terri — get approval', deliverable: 'Gmail Labeling System', owner: 'terrell', week: 2, day: 'Mon', due: addDays(PROJECT_START, 7), status: 'inprog', desc: 'Walk through each label and filter logic. Get sign-off before any deployment.' },
+  { id: 't2-2', name: 'Deploy Gmail labels to all Levitate Logic inboxes', deliverable: 'Gmail Labeling System', owner: 'terrell', week: 2, day: 'Tue', due: addDays(PROJECT_START, 8), status: 'todo', desc: 'Deploy to one inbox first, observe for a few hours, then roll firm-wide if clean.' },
+  { id: 't2-3', name: 'Lead 30-min group Gmail training session', deliverable: 'Team Training Sessions', owner: 'terrell', week: 2, day: 'Wed', due: addDays(PROJECT_START, 9), status: 'todo', desc: 'Scenario-based: show exactly what to do with an Urgent email and a Grant email. Record via Loom.' },
+  { id: 't2-4', name: 'Write & deliver ClickUp Norms one-pager', deliverable: 'ClickUp Norms & Structure', owner: 'terrell', week: 2, day: 'Thu', due: addDays(PROJECT_START, 10), status: 'todo', desc: 'Record 3-5 min Loom walkthrough alongside written doc. Distribute both to Levitate Logic team.' },
+  { id: 't2-5', name: 'Send Week 2 written status update', deliverable: 'Client Communication', owner: 'terrell', week: 2, day: 'Fri', due: addDays(PROJECT_START, 11), status: 'todo', desc: 'Include screenshot of Gmail label system and HubSpot form test confirmation.' },
+
+  // Jeremy W2
+  { id: 'r2-1', name: 'Begin Zapier flow mapping — Gmail→ClickUp', deliverable: 'Zapier Automation Mapping', owner: 'jeremy', week: 2, day: 'Mon', due: addDays(PROJECT_START, 7), status: 'inprog', desc: 'Document trigger event, action, data fields passed, and dependencies. Plain-language "when / do" structure.' },
+  { id: 'r2-2', name: 'Map HubSpot deal close → ClickUp → Drive Zap', deliverable: 'Zapier Automation Mapping', owner: 'jeremy', week: 2, day: 'Tue', due: addDays(PROJECT_START, 8), status: 'todo', desc: 'Document every step, required field, and HubSpot property the Zap will read.' },
+  { id: 'r2-3', name: 'Map grant delivery Zapier flow', deliverable: 'Zapier Automation Mapping', owner: 'jeremy', week: 2, day: 'Wed', due: addDays(PROJECT_START, 9), status: 'todo', desc: 'Google Sheets tracker → Gmail auto-send. Document current Sheet structure and column changes needed for Zapier.' },
+  { id: 'r2-4', name: 'Research Content Snare', deliverable: 'Grant Research Workflow Audit', owner: 'jeremy', week: 2, day: 'Thu', due: addDays(PROJECT_START, 10), status: 'todo', desc: 'Pricing, Zapier integration, client-facing portal experience for Levitate Logic\'s grant document collection use case.' },
+  { id: 'r2-5', name: 'Research PandaDoc', deliverable: 'HubSpot CRM Configuration Plan', owner: 'jeremy', week: 2, day: 'Fri', due: addDays(PROJECT_START, 11), status: 'todo', desc: 'HubSpot integration steps, contract template build, whether it can replace Adobe Sign. Document findings.' },
+
+  // ── WEEK 3 ──────────────────────────────
+  // Jeff W3
+  { id: 'j3-1', name: 'Mid-phase QA check — all systems', deliverable: 'QA & System Testing', owner: 'jeff', week: 3, day: 'Mon', due: addDays(PROJECT_START, 14), status: 'todo', desc: 'Verify Gmail labels, ClickUp workspace, and HubSpot form are all functioning correctly mid-phase.' },
+  { id: 'j3-2', name: 'HubSpot pipeline sync with Jeremy', deliverable: 'Website Form → HubSpot', owner: 'jeff', week: 3, day: 'Tue', due: addDays(PROJECT_START, 15), status: 'todo', desc: '30-min sync to align on pipeline stage configuration needed for Phase 2 CRM plan.' },
+  { id: 'j3-3', name: 'Review Scheduling SOP for technical accuracy', deliverable: 'QA & System Testing', owner: 'jeff', week: 3, day: 'Thu', due: addDays(PROJECT_START, 17), status: 'todo', desc: 'Return corrections to Jeremy before end of day.' },
+  { id: 'j3-4', name: 'Build end-to-end QA test plan for Week 4', deliverable: 'QA & System Testing', owner: 'jeff', week: 3, day: 'Fri', due: addDays(PROJECT_START, 18), status: 'todo', desc: 'List every system, test type, and result field to be completed in Week 4.' },
+
+  // Terrell W3
+  { id: 't3-1', name: 'Schedule Week 4 all-hands training sessions', deliverable: 'Team Training Sessions', owner: 'terrell', week: 3, day: 'Mon', due: addDays(PROJECT_START, 14), status: 'todo', desc: 'Confirm date, format, and that all 10-15 staff are on the calendar.' },
+  { id: 't3-2', name: 'Hold 90-min SOP discovery session with Terri', deliverable: 'Client Communication', owner: 'terrell', week: 3, day: 'Tue', due: addDays(PROJECT_START, 15), status: 'todo', desc: 'Document scheduling and inbox workflows step by step. Jeremy attends to document live. Record session.' },
+  { id: 't3-3', name: 'Draft client onboarding process map with Terri', deliverable: 'Client Communication', owner: 'terrell', week: 3, day: 'Wed-Thu', due: addDays(PROJECT_START, 17), status: 'todo', desc: 'Document every manual step for a new client: HubSpot setup, ClickUp project, Drive folder, welcome email.' },
+  { id: 't3-4', name: 'Send Week 3 status update with SOP drafts', deliverable: 'Client Communication', owner: 'terrell', week: 3, day: 'Fri', due: addDays(PROJECT_START, 18), status: 'todo', desc: 'Include KB library link and SOP drafts. Request feedback returned by Monday of Week 4.' },
+
+  // Jeremy W3
+  { id: 'r3-1', name: 'Build KB library skeleton in ClickUp Docs', deliverable: 'SOP Authoring & KB Library', owner: 'jeremy', week: 3, day: 'Mon', due: addDays(PROJECT_START, 14), status: 'todo', desc: 'Create all folders: Scheduling, Email/Inbox, ClickUp Comms, Tool Guides, Training, Policies. Set naming conventions.' },
+  { id: 'r3-2', name: 'Document SOP discovery session live', deliverable: 'SOP Authoring & KB Library', owner: 'jeremy', week: 3, day: 'Tue', due: addDays(PROJECT_START, 15), status: 'todo', desc: 'Attend Terri\'s session. Every step, exception, and handoff captured before end of day.' },
+  { id: 'r3-3', name: 'Write Scheduling SOP', deliverable: 'SOP Authoring & KB Library', owner: 'jeremy', week: 3, day: 'Wed', due: addDays(PROJECT_START, 16), status: 'todo', desc: 'Calendly management, booking updates, exception handling. Plain language with screenshots. Send to Jeff for accuracy review.' },
+  { id: 'r3-4', name: 'Write Gmail Inbox SOP', deliverable: 'SOP Authoring & KB Library', owner: 'jeremy', week: 3, day: 'Thu', due: addDays(PROJECT_START, 17), status: 'todo', desc: 'Daily triage workflow, label rules, escalation steps. Role-specific versions for Brendela and Terri.' },
+  { id: 'r3-5', name: 'Write ClickUp Internal Comms SOP', deliverable: 'SOP Authoring & KB Library', owner: 'jeremy', week: 3, day: 'Fri', due: addDays(PROJECT_START, 18), status: 'todo', desc: 'Begin Google Drive architecture plan. Research SaneBox pricing and org-level deployment.' },
+
+  // ── WEEK 4 ──────────────────────────────
+  // Jeff W4
+  { id: 'j4-1', name: 'Run full end-to-end QA', deliverable: 'QA & System Testing', owner: 'jeff', week: 4, day: 'Mon', due: addDays(PROJECT_START, 21), status: 'todo', desc: 'Calendly, HubSpot form, Gmail labels, ClickUp workspace. Simulate real client experiences. Document every test.' },
+  { id: 'j4-2', name: 'Fix QA issues, confirm zero open items', deliverable: 'QA & System Testing', owner: 'jeff', week: 4, day: 'Tue', due: addDays(PROJECT_START, 22), status: 'todo', desc: 'Stand by for technical questions during training sessions.' },
+  { id: 'j4-3', name: 'Final QA sign-off document', deliverable: 'QA & System Testing', owner: 'jeff', week: 4, day: 'Wed', due: addDays(PROJECT_START, 23), status: 'todo', desc: 'Confirm all Phase 1 systems are live, integrated, and functioning. Document for close meeting.' },
+  { id: 'j4-4', name: 'Present Phase 2 technical scope at close meeting', deliverable: 'QA & System Testing', owner: 'jeff', week: 4, day: 'Thu', due: addDays(PROJECT_START, 24), status: 'todo', desc: 'Zapier flows, HubSpot config, integrations. Support Terrell in fielding technical questions.' },
+  { id: 'j4-5', name: 'Confirm all Phase 2 access & credentials', deliverable: 'ClickUp Workspace Build', owner: 'jeff', week: 4, day: 'Fri', due: addDays(PROJECT_START, 25), status: 'todo', desc: 'Ensure Phase 1 systems stable and client team is self-sufficient.' },
+
+  // Terrell W4
+  { id: 't4-1', name: 'Finalize all SOPs based on Terri\'s feedback', deliverable: 'Team Training Sessions', owner: 'terrell', week: 4, day: 'Mon', due: addDays(PROJECT_START, 21), status: 'todo', desc: 'Publish final versions to KB library. Send Terri final training schedule.' },
+  { id: 't4-2', name: 'Lead 60-min ops staff training', deliverable: 'Team Training Sessions', owner: 'terrell', week: 4, day: 'Tue', due: addDays(PROJECT_START, 22), status: 'todo', desc: 'Calendly, Gmail labels, ClickUp navigation. Live practice task for every participant. Record via Loom.' },
+  { id: 't4-3', name: 'Lead 45-min leadership training', deliverable: 'Team Training Sessions', owner: 'terrell', week: 4, day: 'Wed', due: addDays(PROJECT_START, 23), status: 'todo', desc: 'Terri + team leads: HubSpot lead view, ClickUp task ownership, SOP navigation. Record via Loom.' },
+  { id: 't4-4', name: 'Hold Phase 1 Close Meeting with Terri', deliverable: 'Client Communication', owner: 'terrell', week: 4, day: 'Thu', due: addDays(PROJECT_START, 24), status: 'todo', desc: 'Present results, celebrate wins, walk through Phase 2 scope. Send adoption pulse survey immediately after.' },
+  { id: 't4-5', name: 'Complete 1:1 follow-ups & final status update', deliverable: 'Client Communication', owner: 'terrell', week: 4, day: 'Fri', due: addDays(PROJECT_START, 25), status: 'todo', desc: 'Follow up with staff below adoption threshold. Send final update confirming Phase 1 complete and Phase 2 approved.' },
+
+  // Jeremy W4
+  { id: 'r4-1', name: 'Compile Phase 2 scope document', deliverable: 'Phase 2 Scope Document', owner: 'jeremy', week: 4, day: 'Mon', due: addDays(PROJECT_START, 21), status: 'todo', desc: 'Zapier flow map, HubSpot CRM config plan, Drive architecture, onboarding SOP, grant workflow audit, Content Snare plan, PandaDoc notes.' },
+  { id: 'r4-2', name: 'Finalize Phase 2 scope — technical accuracy review with Jeff', deliverable: 'Phase 2 Scope Document', owner: 'jeremy', week: 4, day: 'Tue', due: addDays(PROJECT_START, 22), status: 'todo', desc: 'Review Zapier flows and HubSpot config with Jeff. Prepare before/after time savings for close meeting.' },
+  { id: 'r4-3', name: 'Measure actual time savings vs. baseline', deliverable: 'Time Audit Baseline', owner: 'jeremy', week: 4, day: 'Wed', due: addDays(PROJECT_START, 23), status: 'todo', desc: 'Pull Calendly usage data, confirm Gmail adoption, calculate real before/after numbers for close meeting.' },
+  { id: 'r4-4', name: 'Deliver Phase 1 Completion Summary to Levitate Logic', deliverable: 'Phase 2 Scope Document', owner: 'jeremy', week: 4, day: 'Thu', due: addDays(PROJECT_START, 24), status: 'todo', desc: 'What was built, time recovered, KB library index, Phase 2 scope with timeline. Phase 2 approved at close meeting.' },
+  { id: 'r4-5', name: 'Archive Phase 1 docs & confirm Phase 2 start', deliverable: 'Phase 2 Scope Document', owner: 'jeremy', week: 4, day: 'Fri', due: addDays(PROJECT_START, 25), status: 'todo', desc: 'Confirm Phase 2 scope document posted and accessible in ClickUp. Phase 2 begins Monday.' },
+];
+
+const DELIVERABLES = [
+  { id: 'cal', name: 'Calendly Setup', owner: 'jeff' },
+  { id: 'hub', name: 'Website Form → HubSpot', owner: 'jeff' },
+  { id: 'cup', name: 'ClickUp Workspace Build', owner: 'jeff' },
+  { id: 'qa',  name: 'QA & System Testing', owner: 'jeff' },
+  { id: 'gml', name: 'Gmail Labeling System', owner: 'terrell' },
+  { id: 'cnm', name: 'ClickUp Norms & Structure', owner: 'terrell' },
+  { id: 'clc', name: 'Client Communication', owner: 'terrell' },
+  { id: 'trn', name: 'Team Training Sessions', owner: 'terrell' },
+  { id: 'aud', name: 'Time Audit Baseline', owner: 'jeremy' },
+  { id: 'sop', name: 'SOP Authoring & KB Library', owner: 'jeremy' },
+  { id: 'hsb', name: 'HubSpot Data Audit', owner: 'jeremy' },
+  { id: 'zap', name: 'Zapier Automation Mapping', owner: 'jeremy' },
+  { id: 'crm', name: 'HubSpot CRM Configuration Plan', owner: 'jeremy' },
+  { id: 'grn', name: 'Grant Research Workflow Audit', owner: 'jeremy' },
+  { id: 'p2s', name: 'Phase 2 Scope Document', owner: 'jeremy' },
+];
+
+
+
+
+// ══════════════════════════════════════════
+// DELIVERABLE INSIGHTS
+// ══════════════════════════════════════════
+const DELIVERABLE_INSIGHTS = {
+  "Calendly Setup": {
+    strategy: [
+      "Build one master booking page template first, then duplicate for each meeting type. This cuts config time by 60% vs building each page from scratch.",
+      "Set 15-min buffer time before and after every meeting type on Day 1. Retrofitting buffers after the calendar is shared is harder than starting with them.",
+      "Enable email reminders at 24hr and 1hr on all booking types from the start. This alone eliminates most no-shows without any manual follow-up from Brendela."
+    ],
+    practice: [
+      "Create a dedicated internal booking page with no intake questions, and a separate client page with 2-3 qualifying questions embedded. This pre-qualifies every external meeting before it lands on the calendar.",
+      "Never give clients a direct link to a single long availability calendar. Use event types so clients only see what is relevant to them.",
+      "Turn on group scheduling for any recurring multi-stakeholder meetings. This eliminates the when-works-for-everyone email chain that currently costs hours per week."
+    ],
+    example: [
+      "A nonprofit consulting firm with a 3-person admin team implemented Calendly with meeting-type-specific pages and reduced scheduling emails from 60 per week to fewer than 5. Brendela's situation is almost identical.",
+      "A professional services firm added intake questions to their Calendly discovery call page and reported meetings started 30% more productively because context arrived before the call."
+    ]
+  },
+  "Website Form \u2192 HubSpot": {
+    strategy: [
+      "Before reconnecting, audit the form fields and align them to HubSpot contact properties. Data not mapped to a HubSpot property disappears on submission and you lose intel on every lead going forward.",
+      "Add a hidden field that auto-stamps the lead source on every new HubSpot contact record. One-time setup that gives clean attribution data for every future lead without manual work.",
+      "Set the pipeline stage on form submission to New Lead, not Unqualified. This puts every new contact into an actionable state rather than a holding pen."
+    ],
+    practice: [
+      "Run 3 test submissions with real-looking dummy data and confirm the full record appears in HubSpot with correct field mapping, pipeline stage, and contact owner assigned.",
+      "Set up a HubSpot notification to alert Terri or Brendela by email the moment a new form submission arrives. Costs zero extra effort and ensures no lead sits unnoticed.",
+      "Document the reconnection steps in ClickUp Docs so if the form breaks again, anyone on the team can diagnose it independently without waiting for Jeff."
+    ],
+    example: [
+      "A small legal services firm lost 23% of their web leads over 6 months because their HubSpot form lost its connection after a WordPress update. After reconnection and adding a real-time email notification, their response time went from 2 days to under 4 hours."
+    ]
+  },
+  "ClickUp Workspace Build": {
+    strategy: [
+      "Build the Stratus project space and the Levitate Logic internal comms space as two completely separate spaces from Day 1. This keeps internal work clean and gives the client a tidy environment.",
+      "Pre-populate the task list with every Phase 1 deliverable, owner, due date, and status label before the kickoff call. When Terri logs in on Day 1, she sees a fully structured project, not a blank workspace.",
+      "Use task dependency features to connect tasks that must be completed in order. This makes scheduling conflicts visible before they become delays."
+    ],
+    practice: [
+      "Keep the client-facing view simple. Terri should see milestones and status, not every internal task. Use view-only access to show only a curated list of high-level deliverables.",
+      "Create a Decisions Log doc in ClickUp on Day 1 and pin it to the top of the project space. Every decision made in a call or email goes here within 2 hours.",
+      "Use status labels that communicate meaning: In Progress, Pending Client, Blocked, Done. Blocked status flags issues without requiring an extra check-in call."
+    ],
+    example: [
+      "A 5-person consulting firm pre-loaded client-visible milestones before every project kickoff. Clients reported feeling more confident in the team's organization within the first week, before a single deliverable was complete."
+    ]
+  },
+  "QA & System Testing": {
+    strategy: [
+      "Run QA as a simulated real client experience, not a technical checklist. Book a meeting through Calendly as a first-time client. If the experience feels clunky, the client will feel it too.",
+      "QA should happen in Week 3, not Week 4. That gives one full week to fix anything before the close meeting. Week 4 QA should be a confirmation pass, not a discovery session.",
+      "Track every test in a QA log in ClickUp: system tested, test type, result, issue found, fix applied, re-test result. This log becomes the handoff document proving everything was verified before close."
+    ],
+    practice: [
+      "Test every integration bidirectionally. For the HubSpot form: submit, confirm contact appears, confirm notification fires, confirm pipeline stage is correct.",
+      "Have a non-technical person run the final QA pass on user-facing flows. If they can use it without instructions, the client team can too."
+    ],
+    example: [
+      "An ops consulting team adopted a client-in-the-room QA standard: before any handoff, someone attempts to use the system with zero prior instructions. Systems that passed technical QA but failed this test were revised before go-live, resulting in zero post-handoff support tickets."
+    ]
+  },
+  "Gmail Labeling System": {
+    strategy: [
+      "Design the label taxonomy around how the team actually talks about their work, not how a generic template categorizes email. Every label should be instantly recognizable without an explanation.",
+      "Build filter rules that auto-apply labels on arrival so the inbox is pre-sorted before anyone opens it. Filters based on sender domain, subject keywords, and CC patterns get the system to 70-80% accuracy automatically.",
+      "Deploy to one inbox first, observe for 48 hours, then roll firm-wide. This surfaces edge cases before they affect 15 people at once."
+    ],
+    practice: [
+      "Keep the label list to 5-7 categories maximum. More than 7 labels creates the same overwhelm as no labels. If a team member cannot identify which label to use in under 3 seconds, the taxonomy is too complex.",
+      "Use color-coding consistently: red for Urgent, orange for Follow-Up, blue for Client, green for Grant. Color recognition is faster than reading the label name when scanning a full inbox.",
+      "Add an Unclear catch-all label for the first two weeks so team members have somewhere to put anything that does not fit. Review the Unclear pile weekly to refine filter logic."
+    ],
+    example: [
+      "A 12-person grant consulting firm implemented firm-wide Gmail labeling with 6 categories and automated filter rules. Within 2 weeks, email response time to funders dropped by 40% because funder emails were no longer buried in a mixed inbox. The Follow-Up label alone recovered approximately 45 minutes per person per week."
+    ]
+  },
+  "ClickUp Norms & Structure": {
+    strategy: [
+      "The biggest reason new tools get abandoned is that the team does not know what belongs there vs. what belongs in email. The ClickUp Norms one-pager solves this with a single reference that answers where does this go in under 30 seconds.",
+      "Frame ClickUp as the replacement for internal email, not an addition to it. If the team treats ClickUp as optional, adoption will plateau at 30-40%. The shift happens when the norm becomes: if it is internal, it is in ClickUp.",
+      "Launch ClickUp with a working example already in place. Pre-populate 2-3 real tasks from Week 1 so the team opens ClickUp and sees actual work happening, not an empty template."
+    ],
+    practice: [
+      "Write the ClickUp Norms one-pager in plain language, not tech speak. Use phrases like where to put it, how to mark it done, and what to do if you are not sure.",
+      "Include a response time norm: task comments get a response within 24 hours during business days. This sets expectations before someone feels ignored in a task thread.",
+      "Record a 3-5 minute Loom walkthrough of the workspace alongside the written one-pager. The Loom costs 5 extra minutes and doubles the adoption rate for visual learners."
+    ],
+    example: [
+      "A 10-person consulting firm rolled out ClickUp with a written norms doc and a Loom walkthrough. After 30 days, the Loom had 9 out of 10 views, meaning almost everyone went to the video first when they had a question. Both formats are necessary."
+    ]
+  },
+  "Client Communication": {
+    strategy: [
+      "Use a consistent weekly update format every Friday: three sections only. What we completed this week, what is happening next week, and what we need from you. Consistency trains the client to read the update in under 2 minutes.",
+      "Manage every approval as a task in ClickUp with a due date, not a verbal ask in a meeting or a buried email. Approvals without due dates get forgotten. Approvals with a 48-hour deadline get completed.",
+      "When something goes sideways, deliver the news in two sentences with a proposed solution attached. Never deliver a problem without a next step."
+    ],
+    practice: [
+      "Log every client conversation in the client-comms-log channel within 2 hours, including phone calls. A one-sentence summary is enough. This log becomes the single source of truth if any question arises about what was agreed.",
+      "Never let a week pass without a written status update, even if nothing major happened. A short update saying everything is on track builds more confidence than silence."
+    ],
+    example: [
+      "A project management consultant used a Friday update template for 6 weeks straight. At the Phase 1 close meeting, the client said the weekly updates were the single biggest reason they trusted the team because they always knew exactly where things stood. The updates took 10 minutes per week to write."
+    ]
+  },
+  "Team Training Sessions": {
+    strategy: [
+      "Train to the outcome, not the feature. Show Brendela exactly what she does when a client needs to reschedule, when she needs to block her calendar, and when she gets a no-show. Scenario-based training lands better than feature walkthroughs.",
+      "Send a one-page cheat sheet before every training session with the 3-5 things the participant needs to know how to do afterward. This primes attention and gives people a reference after the session ends.",
+      "Record every training via Loom and store it in the KB library the same day. Staff who miss the live session can self-serve. New hires in Phase 3 can onboard without a dedicated session."
+    ],
+    practice: [
+      "End every training session with a live practice task, not Q&A. Have each participant complete one real action in the tool before they leave: book a test meeting in Calendly, apply a Gmail label, create a ClickUp task. Doing beats watching.",
+      "Send the adoption pulse survey no later than 48 hours after training. Use 3 questions: confidence score from 1 to 5, one thing they are unsure about, and whether they would benefit from a 1:1.",
+      "Follow up personally with anyone who scores a 3 or below within 24 hours. A 15-minute 1:1 at this stage prevents a tool from being abandoned entirely."
+    ],
+    example: [
+      "A nonprofit admin team of 8 received Calendly training with a live practice task at the end. 7 out of 8 successfully booked a test meeting before leaving. The one who did not got a 15-minute follow-up the next morning. 30 days later all 8 were using Calendly independently with zero additional support requests."
+    ]
+  },
+  "Time Audit Baseline": {
+    strategy: [
+      "Build the baseline in a simple two-column format: Before Phase 1 and After Phase 1. The goal is a document Terri can read in 90 seconds and immediately understand the value of what was delivered.",
+      "Tie every time saving to a dollar amount using the team's hourly rates. We saved 10 hours per week is good. We returned $2,080 per month in productive capacity to your team is what gets Phase 2 approved without hesitation.",
+      "Collect actual usage data in Week 4 to validate the estimate. Calendly shows total meetings booked. That number multiplied by average scheduling time saved gives a real number, not a projection."
+    ],
+    practice: [
+      "Keep the before/after comparison to one page. Add a summary headline at the top: Phase 1 returned X hours and $Y to Levitate Logic in 4 weeks. This is the sentence Terri will repeat to her board.",
+      "Present the time audit at the close meeting, not just in advance. Walking through the numbers in the room allows Terri to react, ask questions, and internalize the ROI in a way that reading alone does not."
+    ],
+    example: [
+      "A business operations firm presented a before/after time audit showing their client had recovered 11.2 hours per week across the team. The client immediately asked to start Phase 2 the following week without the Phase 2 sales conversation the team had planned. The data closed the deal."
+    ]
+  },
+  "SOP Authoring & KB Library": {
+    strategy: [
+      "Write SOPs to the level of the least experienced person who will ever use them, not to Terri's level. An SOP that only makes sense to someone who already knows the process is not an SOP. It is a reminder note.",
+      "Structure every SOP identically: Purpose, When to Use It, Step-by-Step Process, What to Do If Something Goes Wrong, and Last Updated. Consistent structure means anyone can find what they need in any SOP without re-learning the format.",
+      "Build the KB library architecture before writing a single SOP. A well-organized library that is half-full is more useful than a full library with no structure. Folders first, content second."
+    ],
+    practice: [
+      "Use Loom to record a short video walkthrough alongside every written SOP. The written doc is the reference. The Loom is for onboarding new staff. Together, they reduce new-hire training time from 3 hours to under 30 minutes.",
+      "Link every SOP directly to the ClickUp task list it governs. When someone opens the Schedule Client Meeting task type, the Scheduling SOP is one click away at the moment of need.",
+      "Set a review date on every SOP 6 months out. SOPs that are never updated become inaccurate and stop being trusted. A future-dated reminder in ClickUp keeps the library alive."
+    ],
+    example: [
+      "A nonprofit operations team built a ClickUp Docs library with 6 SOPs covering their core admin workflows. When they hired a new team member 3 months later, onboarding took 4 hours instead of the usual 2-3 days because everything the new hire needed was written down, organized, and linked to the tasks they were actually doing."
+    ]
+  },
+  "HubSpot Data Audit": {
+    strategy: [
+      "Approach the HubSpot audit as a Phase 2 readiness check, not a data cleaning project. The goal is to understand what needs to be cleaned so Phase 2 automation is built on accurate data. Automating dirty data creates faster errors.",
+      "Prioritize auditing the fields that Phase 2 automations will rely on: deal stage names, contact owner, lead source, and custom properties tied to the onboarding trigger. If those are inconsistent, Zapier flows will misfire.",
+      "Document what exists and what is missing as two separate lists. What exists tells Jeff what he can use immediately. What is missing becomes the Phase 2 HubSpot CRM configuration plan."
+    ],
+    practice: [
+      "Run a filter in HubSpot for contacts with missing email addresses, blank deal stages, or no contact owner assigned. Any of these will break Phase 2 automations the moment they fire. Flag them now.",
+      "Walk Jeff through the audit findings in a 30-minute sync before he reconnects the form. If the pipeline stage the form should land in does not exist yet in HubSpot, Jeff will build to the wrong target."
+    ],
+    example: [
+      "A consulting firm HubSpot had 400+ contacts with no deal stage assigned and 60% missing a contact owner field. When Phase 2 automation was built without addressing this, the deal owner notification Zap fired to no one for 6 weeks. The audit Jeremy runs in Phase 1 prevents that exact scenario for Levitate Logic."
+    ]
+  },
+  "Zapier Automation Mapping": {
+    strategy: [
+      "Map every Zapier flow in plain language before writing a single Zap. Format: When this trigger happens in this tool, do this action in this tool using this data field. This forces clarity and surfaces dependencies before build begins.",
+      "Sequence the flows by impact-to-complexity ratio: highest time savings, lowest build complexity first. Gmail to ClickUp task routing is fast to build and saves significant daily re-entry time.",
+      "Identify every data field the Zap will need to pass between systems before Phase 2 begins. If HubSpot contact properties do not exist yet, Phase 2 build is blocked on Day 1. Jeremy's job is to remove those blockers in advance."
+    ],
+    practice: [
+      "Build a Zapier flow map document with one section per Zap: Trigger Tool, Trigger Event, Action Tool, Action Event, Data Fields Passed, Dependencies, and Priority. This becomes Jeff's build spec on Day 1 of Phase 2.",
+      "Confirm Zapier account access and plan level before Phase 2 begins. A multi-step Zap requires Zapier Professional or above. If Levitate Logic is on the free tier, Phase 2 is blocked on licensing before a single Zap is built."
+    ],
+    example: [
+      "An operations team built a 3-step Zap: HubSpot deal closes, ClickUp onboarding task list is created, Google Drive client folder is created. The entire Zap took 4 hours to build in Phase 2 because Jeremy had mapped every trigger, action, and data field in Phase 1. Teams that skip this mapping step average 3 to 4 times longer on the same build."
+    ]
+  },
+  "HubSpot CRM Configuration Plan": {
+    strategy: [
+      "Start with the end state: what should happen in HubSpot when a new client signs? Work backward from there to define what deal stages, contact properties, and pipeline triggers need to exist.",
+      "The intake qualification criteria conversation with Terri is the highest-leverage task in Phase 1. Every lead that enters HubSpot from Phase 2 forward will be evaluated against these criteria. Getting them wrong fills the pipeline with unqualified contacts.",
+      "Document the as-is and to-be CRM state side by side. This gap analysis becomes the Phase 2 HubSpot build list and prevents Jeff from building against a target that does not exist yet."
+    ],
+    practice: [
+      "Limit the Phase 2 pipeline to 5-6 deal stages maximum. More stages create confusion about what stage a deal is actually in and reduce the likelihood the team maintains the CRM accurately.",
+      "Name deal stages in active language: Discovery Booked not Discovery, Proposal Sent not Proposal. Active names tell anyone looking at the pipeline exactly what the last action was.",
+      "Define qualified lead criteria in writing with Terri. These criteria become the intake form questions and the first filter in the pipeline. If they live only in Terri's head, they cannot be systematized."
+    ],
+    example: [
+      "A small professional services firm had a HubSpot pipeline with 11 deal stages when StratusAi conducted the audit. No one could explain the difference between stages 6 and 7. After restructuring to 5 active-language stages, pipeline accuracy went from 40% to 91% within 6 weeks because the team finally agreed on what each stage meant."
+    ]
+  },
+  "Grant Research Workflow Audit": {
+    strategy: [
+      "The grant research workflow is the highest-time-cost process outside of scheduling at 15+ hours per week across three team members. Understanding the current process in exact detail is the prerequisite for reducing it in Phase 2.",
+      "Focus the audit on the monthly delivery step specifically. This is where the most time is lost and where automation will deliver the fastest return: how the Google Sheet is updated, how the email is composed, who sends it, and how long each step takes.",
+      "Document the client document collection process separately from the research and delivery process. These are two different workflows. Conflating them in the audit makes the Phase 2 build harder."
+    ],
+    practice: [
+      "Shadow the grant process for one cycle if timing allows. Even a 30-minute observation of how the team actually assembles a grant report will surface inefficiencies that no interview will capture.",
+      "Document the Google Sheets tracker structure in detail: column headers, data types, who updates which columns, and how often. Zapier needs to read from this sheet in Phase 2. If the structure is inconsistent, the Zap will fail."
+    ],
+    example: [
+      "A grant management team spent 18 hours per month manually compiling and emailing individual grant reports to 14 clients from a shared Google Sheet. After the workflow audit, StratusAi built a Google Sheets and Zapier automation in Phase 2 that auto-generated and emailed each report on a schedule. The 18-hour monthly task became a 20-minute quality check."
+    ]
+  },
+  "Phase 2 Scope Document": {
+    strategy: [
+      "The Phase 2 scope document is a deliverable, not a reference document. It should read as a proposal presenting what Phase 2 will build, what time it will save, and what it will cost. If Terri reads it and immediately says yes, it is written correctly.",
+      "Sequence the Phase 2 deliverables by impact. Lead with the HubSpot to ClickUp onboarding automation at highest ROI of 2 hours per client times 12 clients per year. End with Drive migration and SaneBox.",
+      "Present the document at the close meeting, not in advance. Sending it early gives Terri the opportunity to generate concerns before the team is in the room to answer them."
+    ],
+    practice: [
+      "Open the Phase 2 scope document with a one-paragraph summary of what Phase 1 accomplished and what Phase 2 builds on top of. Terri should be able to hand this to her board and have them understand the full engagement arc in 2 minutes.",
+      "Include a Phase 2 timeline overview covering Weeks 5 through 10 with owner and milestone per week. A client who can see exactly what happens when feels more confident approving the next phase."
+    ],
+    example: [
+      "A StratusAi-style engagement team presented a Phase 2 scope document at the Phase 1 close meeting that led with Phase 1 time savings, sequenced Phase 2 deliverables by impact, and included a one-page timeline. Phase 2 was approved in the meeting without a follow-up conversation. The team started Phase 2 the following Monday."
+    ]
   }
+};
 
-  function saveTasks() { localStorage.setItem(TASKS_KEY, JSON.stringify(tasks)); }
-  function saveComments() { localStorage.setItem(COMMENTS_KEY, JSON.stringify(comments)); }
+// ══════════════════════════════════════════
+// COMMENTS STATE
+// ══════════════════════════════════════════
+let comments = {};   // { taskId: [ { author, text, ts } ] }
+let taskCommentsOpen = {};
 
-  // --- Progress calculations ---
-  function getPhaseStats(p) {
-    const total = p.tasks.length;
-    const done = p.tasks.filter(t => tasks[t.id]).length;
-    return { total, done, pct: Math.round((done / total) * 100) };
+// ══════════════════════════════════════════
+// GOOGLE SHEETS BACKEND
+// ══════════════════════════════════════════
+// Paste your Apps Script Web App URL here after deploying:
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyA9PZt7kt3g5i4QTAKOjL0C6p7bCSPsB-mMkd7_TnCbl16TH-czNtmuIHqPsmVBrMl/exec';
+
+// localStorage keys — used ONLY for session (current user) and
+// as an offline cache so the UI feels instant on repeat visits.
+const LS_USER    = 'stratus_v1_user';
+const LS_CACHE   = 'stratus_v1_cache';
+
+let _syncInProgress = false;
+
+// ── API call to Google Sheets ─────────────────────────────────
+async function sheetsCall(params) {
+  if (!SHEETS_URL) return null;
+  try {
+    const url = new URL(SHEETS_URL);
+    Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+    const res = await fetch(url.toString(), { method: 'GET' });
+    const json = await res.json();
+    if (json.error) { console.error('Sheets error:', json.error); return null; }
+    return json;
+  } catch(e) {
+    console.error('Sheets fetch failed:', e);
+    return null;
   }
+}
 
-  function getOverallStats() {
-    const total = PHASES.reduce((s, p) => s + p.tasks.length, 0);
-    const done = Object.values(tasks).filter(Boolean).length;
-    return { total, done, pct: Math.round((done / total) * 100) };
-  }
+// ── Load all shared data from Sheets (called on page load) ────
+async function loadState() {
+  // 1. Restore session user from localStorage
+  const savedUser = localStorage.getItem(LS_USER);
+  if (savedUser) currentUser = savedUser;
 
-  function statusLabel(pct) {
-    if (pct === 0) return "Not Started";
-    if (pct < 40) return "In Progress";
-    if (pct < 75) return "Halfway There";
-    if (pct < 100) return "Nearly Complete";
-    return "Complete";
-  }
+  // 2. Apply local cache immediately so UI is instant
+  try {
+    const cache = JSON.parse(localStorage.getItem(LS_CACHE) || '{}');
+    if (cache.users)     Object.assign(users, cache.users);
+    if (cache.taskState) Object.assign(taskState, cache.taskState);
+    if (cache.comments)  Object.assign(comments, cache.comments);
+  } catch(e) {}
 
-  function statusColor(pct) {
-    if (pct === 0) return "#94A3B8";
-    if (pct < 40) return "#F59E0B";
-    if (pct < 75) return "#2563EB";
-    return "#0DB87A";
-  }
-
-  // --- Render ---
-  function renderProgress() {
-    const { total, done, pct } = getOverallStats();
-    const color = statusColor(pct);
-    const label = statusLabel(pct);
-
-    document.getElementById("overall-pct").textContent = pct + "%";
-    document.getElementById("overall-pct").style.color = color;
-    document.getElementById("task-count").innerHTML = done + '<span>/' + total + '</span>';
-
-    const badge = document.getElementById("status-badge");
-    badge.textContent = label;
-    badge.style.background = color + "15";
-    badge.style.color = color;
-
-    const bar = document.getElementById("overall-bar");
-    bar.style.width = pct + "%";
-    bar.style.background = color;
-
-    // Phase mini bars
-    const grid = document.getElementById("phase-mini-grid");
-    grid.innerHTML = PHASES.map(p => {
-      const s = getPhaseStats(p);
-      return `
-        <div>
-          <div class="phase-mini-label">
-            <span style="color:#64748B;font-weight:500;">Phase ${p.id}</span>
-            <span style="font-family:'DM Mono',monospace;color:${p.color};font-weight:500;">${s.pct}%</span>
-          </div>
-          <div class="phase-mini-track">
-            <div class="phase-mini-fill" style="width:${s.pct}%;background:${p.color};"></div>
-          </div>
-          <div class="phase-mini-sub">${s.done}/${s.total} tasks · ${p.weeks}</div>
-        </div>
-      `;
-    }).join("");
-  }
-
-  function renderPhases() {
-    const container = document.getElementById("phase-list");
-    container.innerHTML = PHASES.map(p => {
-      const s = getPhaseStats(p);
-      const open = expandedPhase === p.id;
-      const taskRows = p.tasks.map(t => {
-        const done = tasks[t.id];
-        return `
-          <div class="task-row ${isAdmin ? 'admin-mode' : ''}" onclick="toggleTask('${t.id}', ${p.id})">
-            <div class="checkbox ${done ? 'checked' : ''}" style="${done ? `border-color:${p.color};background:${p.color};` : ''}">
-              ${done ? `<svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3.2 6L8 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>` : ''}
-            </div>
-            <span class="task-text ${done ? 'done' : ''}">${t.text}</span>
-            ${done ? `<span class="done-badge" style="background:${p.color}15;color:${p.color};">Done</span>` : ''}
-          </div>
-        `;
-      }).join("");
-
-      return `
-        <div class="phase-card">
-          <div class="phase-header" onclick="togglePhase(${p.id})" style="border-left:4px solid ${p.color};">
-            <div style="flex:1;">
-              <div class="phase-name">Phase ${p.id}: ${p.name}</div>
-              <div class="phase-weeks">${p.weeks}</div>
-            </div>
-            <div style="display:flex;align-items:center;gap:14px;">
-              <div class="phase-bar-wrap">
-                <div class="phase-bar-labels">
-                  <span style="font-size:11px;color:#94A3B8;">${s.done}/${s.total}</span>
-                  <span class="phase-pct" style="color:${p.color};">${s.pct}%</span>
-                </div>
-                <div style="height:4px;background:#F0F3F7;border-radius:2px;overflow:hidden;">
-                  <div style="height:100%;width:${s.pct}%;background:${p.color};border-radius:2px;transition:width .4s;"></div>
-                </div>
-              </div>
-              <svg class="chevron ${open ? 'open' : ''}" width="15" height="15" viewBox="0 0 15 15" fill="none">
-                <path d="M3.5 5.5L7.5 9.5L11.5 5.5" stroke="#94A3B8" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-          </div>
-          ${open ? `
-            <div class="task-list" style="border-top-color:${p.borderColor};">
-              ${!isAdmin ? `
-                <div class="readonly-notice">
-                  <svg width="12" height="12" viewBox="0 0 13 13" fill="none">
-                    <rect x="1.5" y="5.5" width="10" height="7" rx="1.5" stroke="#94A3B8" stroke-width="1.1"/>
-                    <path d="M4 5.5V4A2.5 2.5 0 019 4v1.5" stroke="#94A3B8" stroke-width="1.1" stroke-linecap="round"/>
-                  </svg>
-                  Read-only · admin login required to update tasks
-                </div>
-              ` : ''}
-              ${taskRows}
-            </div>
-          ` : ''}
-        </div>
-      `;
-    }).join("");
-  }
-
-  function renderFeed() {
-    const list = document.getElementById("feed-list");
-    list.innerHTML = comments.map(c => `
-      <div class="comment-row">
-        <div class="comment-avatar">${c.initials}</div>
-        <div style="flex:1;">
-          <div class="comment-meta">
-            <span class="comment-author">${c.author}</span>
-            <span class="comment-dot">·</span>
-            <span class="comment-time">${c.time}</span>
-          </div>
-          <div class="comment-bubble">${c.text}</div>
-        </div>
-      </div>
-    `).join("");
-
-    document.getElementById("post-area").style.display = isAdmin ? "block" : "none";
-    document.getElementById("feed-lock").style.display = isAdmin ? "none" : "flex";
-  }
-
-  function renderAll() {
-    renderProgress();
-    renderPhases();
-    renderFeed();
-  }
-
-  // --- Actions ---
-  function togglePhase(id) {
-    expandedPhase = expandedPhase === id ? null : id;
-    renderPhases();
-  }
-
-  function toggleTask(taskId, phaseId) {
-    if (!isAdmin) return;
-    tasks[taskId] = !tasks[taskId];
-    saveTasks();
-    renderAll();
-  }
-
-  // --- Admin ---
-  function toggleAdmin() {
-    if (isAdmin) {
-      isAdmin = false;
-      document.getElementById("admin-btn").classList.remove("active");
-      document.getElementById("admin-btn-label").textContent = "Admin Login";
-      renderAll();
+  // 3. If Sheets is configured, fetch fresh data in background
+  if (SHEETS_URL) {
+    showSyncBanner('Syncing with server…');
+    const data = await sheetsCall({ action: 'getAll' });
+    if (data) {
+      // Merge users
+      if (data.users) {
+        data.users.forEach(u => {
+          if (u.username) users[u.username] = u;
+        });
+      }
+      // Merge task states
+      if (data.tasks) {
+        data.tasks.forEach(t => {
+          if (t.taskId && t.status) taskState[t.taskId] = t.status;
+        });
+      }
+      // Rebuild comments object
+      if (data.comments) {
+        comments = {};
+        data.comments.forEach(c => {
+          if (!c.taskId) return;
+          if (!comments[c.taskId]) comments[c.taskId] = [];
+          comments[c.taskId].push({
+            author: c.author,
+            text: c.text,
+            ts: Number(c.timestamp) || Date.now()
+          });
+        });
+      }
+      // Update local cache
+      writeCache();
+      hideSyncBanner();
+      // Re-render if user is already logged in
+      if (currentUser) renderDashboard();
     } else {
-      document.getElementById("overlay").style.display = "flex";
-      setTimeout(() => document.getElementById("pw-input").focus(), 50);
+      showSyncBanner('Offline — showing cached data', true);
+      setTimeout(hideSyncBanner, 3000);
     }
   }
+}
 
-  function submitLogin() {
-    const pw = document.getElementById("pw-input").value;
-    const input = document.getElementById("pw-input");
-    const error = document.getElementById("pw-error");
-    if (pw === ADMIN_PASSWORD) {
-      isAdmin = true;
-      document.getElementById("overlay").style.display = "none";
-      document.getElementById("pw-input").value = "";
-      error.style.display = "none";
-      input.classList.remove("error");
-      document.getElementById("admin-btn").classList.add("active");
-      document.getElementById("admin-btn-label").textContent = "Admin · Sign Out";
-      renderAll();
+// ── Save a task status to Sheets + cache ─────────────────────
+async function saveTaskToSheets(taskId, status) {
+  const row = { taskId, status, updatedAt: Date.now(), updatedBy: currentUser || '' };
+  writeCache();
+  if (SHEETS_URL) {
+    await sheetsCall({ action: 'saveTask', data: JSON.stringify(row) });
+  }
+}
+
+// ── Save a user record to Sheets + cache ─────────────────────
+async function saveUserToSheets(username) {
+  const rec = users[username];
+  if (!rec) return;
+  writeCache();
+  if (SHEETS_URL) {
+    await sheetsCall({ action: 'saveUser', data: JSON.stringify({ username, ...rec }) });
+  }
+}
+
+// ── Delete a user from Sheets + cache ────────────────────────
+async function deleteUserFromSheets(username) {
+  writeCache();
+  if (SHEETS_URL) {
+    await sheetsCall({ action: 'deleteUser', username });
+  }
+}
+
+// ── Save a comment to Sheets + cache ─────────────────────────
+async function saveCommentToSheets(taskId, comment) {
+  const row = { taskId, author: comment.author, text: comment.text, timestamp: comment.ts };
+  writeCache();
+  if (SHEETS_URL) {
+    await sheetsCall({ action: 'addComment', data: JSON.stringify(row) });
+  }
+}
+
+// ── Write everything to local cache ──────────────────────────
+function writeCache() {
+  try {
+    localStorage.setItem(LS_CACHE, JSON.stringify({ users, taskState, comments }));
+    if (currentUser) localStorage.setItem(LS_USER, currentUser);
+    else localStorage.removeItem(LS_USER);
+  } catch(e) {}
+}
+
+// Compat alias — called by old code
+function saveState() { writeCache(); }
+function loadComments() {} // no-op — handled by loadState
+function saveComments() { writeCache(); }
+
+// ── Sync banner UI ────────────────────────────────────────────
+function showSyncBanner(msg, warn = false) {
+  let b = document.getElementById('sync-banner');
+  if (!b) {
+    b = document.createElement('div');
+    b.id = 'sync-banner';
+    b.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;padding:8px 20px;font-size:0.78rem;font-weight:500;text-align:center;transition:all 0.3s;display:flex;align-items:center;justify-content:center;gap:8px';
+    document.body.appendChild(b);
+  }
+  b.style.background = warn ? '#FEF6E4' : 'var(--brand)';
+  b.style.color = warn ? '#875500' : 'white';
+  b.innerHTML = warn
+    ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>' + msg
+    : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>' + msg;
+  b.style.display = 'flex';
+}
+
+function hideSyncBanner() {
+  const b = document.getElementById('sync-banner');
+  if (b) b.style.display = 'none';
+}
+
+
+
+function postComment(taskId) {
+  const inp = document.getElementById("cinp-" + taskId);
+  if (!inp) return;
+  const text = inp.value.trim();
+  if (!text) return;
+  if (!comments[taskId]) comments[taskId] = [];
+  const newComment = { author: currentUser, text, ts: Date.now() };
+  comments[taskId].push(newComment);
+  saveCommentToSheets(taskId, newComment);  // async — saves to Sheets
+  inp.value = "";
+  const listEl = document.getElementById("clist-" + taskId);
+  if (listEl) listEl.innerHTML = renderCommentList(taskId);
+  // Update toggle label
+  const togBtn = document.getElementById("ctog-" + taskId);
+  if (togBtn) {
+    const cnt = comments[taskId].length;
+    if (!taskCommentsOpen[taskId]) togBtn.textContent = "View " + cnt + " comment" + (cnt !== 1 ? "s" : "");
+  }
+}
+
+function toggleComments(taskId) {
+  taskCommentsOpen[taskId] = !taskCommentsOpen[taskId];
+  const wrap = document.getElementById("cwrap-" + taskId);
+  if (wrap) wrap.classList.toggle("open", taskCommentsOpen[taskId]);
+  const togBtn = document.getElementById("ctog-" + taskId);
+  if (togBtn) {
+    const cnt = (comments[taskId] || []).length;
+    togBtn.textContent = taskCommentsOpen[taskId]
+      ? "Hide comments"
+      : (cnt > 0 ? "View " + cnt + " comment" + (cnt !== 1 ? "s" : "") : "Add comment");
+  }
+}
+
+function fmtTs(ts) {
+  const d = new Date(ts);
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" }) +
+         " at " + d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+}
+
+function renderCommentList(taskId) {
+  const list = comments[taskId] || [];
+  if (!list.length) return "<div class=\"empty-comments\">No comments yet. Be the first to add one.</div>";
+  const col = OWNER_COLORS;
+  return list.map(c => {
+    const display = c.author.charAt(0).toUpperCase() + c.author.slice(1);
+    const color = (col[c.author] || col.jeff).dot;
+    return "<div class=\"comment-item\">" +
+      "<div class=\"comment-avatar\" style=\"background:" + color + "\">" + display.charAt(0) + "</div>" +
+      "<div class=\"comment-body\">" +
+        "<div class=\"comment-meta\"><span class=\"comment-author\">" + display + "</span><span>" + fmtTs(c.ts) + "</span></div>" +
+        "<div class=\"comment-text\">" + c.text.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;") + "</div>" +
+      "</div></div>";
+  }).join("");
+}
+
+function renderCommentSection(taskId) {
+  const cnt = (comments[taskId] || []).length;
+  const toggleLabel = cnt > 0 ? "View " + cnt + " comment" + (cnt !== 1 ? "s" : "") : "Add comment";
+  const isOpen = taskCommentsOpen[taskId] || false;
+  return "<div class=\"comments-section\" style=\"padding:0\">" +
+    "<button class=\"comment-toggle\" id=\"ctog-" + taskId + "\" onclick=\"toggleComments('" + taskId + "')\">" +
+      "<svg width=\"13\" height=\"13\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z\"/></svg>" +
+      " " + toggleLabel +
+    "</button>" +
+    "<div class=\"insight-drawer" + (isOpen ? " open" : "") + "\" id=\"cwrap-" + taskId + "\" style=\"background:white;border-top:none\">" +
+      "<div style=\"padding:1rem 1.5rem;border-top:1px solid var(--border)\">" +
+        "<div class=\"comment-list\" id=\"clist-" + taskId + "\">" + renderCommentList(taskId) + "</div>" +
+        "<div class=\"comment-input-wrap\">" +
+          "<textarea class=\"comment-input\" id=\"cinp-" + taskId + "\" placeholder=\"Add a comment visible to all admins...\" rows=\"1\" " +
+            "oninput=\"this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'\"></textarea>" +
+          "<button class=\"comment-send\" onclick=\"postComment('" + taskId + "')\">Post</button>" +
+        "</div>" +
+      "</div>" +
+    "</div>" +
+  "</div>";
+}
+
+// ── INSIGHT HELPERS ──────────────────────────────────────────
+function toggleInsight(delivId) {
+  const drawer = document.getElementById("insight-" + delivId);
+  const btn    = document.getElementById("insight-btn-" + delivId);
+  if (!drawer || !btn) return;
+  const isOpen = drawer.classList.contains("open");
+  drawer.classList.toggle("open", !isOpen);
+  btn.classList.toggle("open", !isOpen);
+  const lbl = btn.querySelector(".insight-lbl");
+  if (lbl) lbl.textContent = isOpen ? "View strategy & examples" : "Hide strategy & examples";
+}
+
+function renderInsightDrawer(delivName, delivId) {
+  const data = DELIVERABLE_INSIGHTS[delivName];
+  if (!data) return "";
+  const liH = arr => arr.map(i => "<li>" + i + "</li>").join("");
+  const stratIcon = "<svg width=\"11\" height=\"11\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M22 11.08V12a10 10 0 1 1-5.93-9.14\"/><polyline points=\"22 4 12 14.01 9 11.01\"/></svg>";
+  const bpIcon    = "<svg width=\"11\" height=\"11\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polygon points=\"12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2\"/></svg>";
+  const exIcon    = "<svg width=\"11\" height=\"11\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"12\"/><line x1=\"12\" y1=\"16\" x2=\"12.01\" y2=\"16\"/></svg>";
+  return "<div class=\"insight-drawer\" id=\"insight-" + delivId + "\">" +
+    "<div class=\"insight-inner\">" +
+      "<div class=\"insight-block strategy\"><div class=\"insight-label\">" + stratIcon + " Strategy</div><ul class=\"insight-points\">" + liH(data.strategy) + "</ul></div>" +
+      "<div class=\"insight-block practice\"><div class=\"insight-label\">" + bpIcon + " Best practice</div><ul class=\"insight-points\">" + liH(data.practice) + "</ul></div>" +
+      "<div class=\"insight-block example\"><div class=\"insight-label\">" + exIcon + " Use case example</div><ul class=\"insight-points\">" + liH(data.example) + "</ul></div>" +
+    "</div>" +
+  "</div>";
+}
+
+
+const OWNER_COLORS = {
+  jeff: { bg: '#D6E4F7', fg: '#1F4E79', dot: '#2E75B6' },
+  terrell: { bg: '#E2EFDA', fg: '#375623', dot: '#4a7c28' },
+  jeremy: { bg: '#FCE4D6', fg: '#7B2C2C', dot: '#c04a20' },
+  terri: { bg: '#EAD1F0', fg: '#5C2E8E', dot: '#7c3aed' },
+};
+
+// ══════════════════════════════════════════
+// STATE VARIABLES
+// ══════════════════════════════════════════
+
+let currentUser = null;
+let taskState = {};
+let users = {};
+let notifPanelOpen = false;
+
+
+function getTaskStatus(taskId) {
+  return taskState[taskId] || TASKS.find(t => t.id === taskId)?.status || 'todo';
+}
+
+function getCompletedCount(tasks) {
+  return tasks.filter(t => getTaskStatus(t.id) === 'done').length;
+}
+
+// ══════════════════════════════════════════
+// AUTH — password-based
+// ══════════════════════════════════════════
+
+function showScreen(name) {
+  ['register','login','otp'].forEach(s => {
+    const el = document.getElementById('screen-'+s);
+    if (el) el.classList.toggle('hidden', s !== name);
+  });
+  document.getElementById('app').classList.remove('visible');
+}
+
+// Simple non-reversible hash (djb2) — good enough for a local-only app.
+// Passwords are never stored in plain text.
+function hashPassword(pw) {
+  let h = 5381;
+  for (let i = 0; i < pw.length; i++) {
+    h = ((h << 5) + h) ^ pw.charCodeAt(i);
+    h = h >>> 0;
+  }
+  return h.toString(16);
+}
+
+function checkPwStrength(pw) {
+  const fill = document.getElementById('pw-strength-fill');
+  const hint = document.getElementById('pw-hint');
+  if (!fill || !hint) return;
+  let score = 0;
+  if (pw.length >= 8)  score++;
+  if (pw.length >= 12) score++;
+  if (/[A-Z]/.test(pw)) score++;
+  if (/[0-9]/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+  const pct   = [0, 20, 40, 65, 85, 100][score];
+  const color = ['#e24b4a','#e24b4a','#ba7517','#ba7517','#1a7a4a','#1a7a4a'][score];
+  const label = ['Too short','Weak','Fair','Good','Strong','Very strong'][score];
+  fill.style.width   = pct + '%';
+  fill.style.background = color;
+  hint.textContent   = pw.length ? label : 'Choose a strong password';
+  hint.style.color   = pw.length ? color : 'var(--text3)';
+}
+
+function handleRegister() {
+  const username  = document.getElementById('reg-username').value.trim().toLowerCase();
+  const email     = document.getElementById('reg-email').value.trim();
+  const pw        = document.getElementById('reg-password').value;
+  const pw2       = document.getElementById('reg-password2').value;
+  const alertEl   = document.getElementById('reg-alert');
+
+  alertEl.classList.add('hidden');
+
+  const validUsers = ['jeff','terrell','jeremy','terri'];
+  if (!validUsers.includes(username)) {
+    alertEl.textContent = 'Username must be Jeff, Terrell, Jeremy, or Terri.';
+    alertEl.classList.remove('hidden'); return;
+  }
+  if (!email.includes('@') || !email.includes('.')) {
+    alertEl.textContent = 'Please enter a valid email address.';
+    alertEl.classList.remove('hidden'); return;
+  }
+  if (pw.length < 8) {
+    alertEl.textContent = 'Password must be at least 8 characters.';
+    alertEl.classList.remove('hidden'); return;
+  }
+  if (pw !== pw2) {
+    alertEl.textContent = 'Passwords do not match.';
+    alertEl.classList.remove('hidden'); return;
+  }
+  if (users[username] && users[username].passwordHash) {
+    alertEl.textContent = 'This account already exists. Sign in instead, or ask an admin to reset your password.';
+    alertEl.classList.remove('hidden'); return;
+  }
+
+  // Store user — merge so existing task data is not lost
+  users[username] = Object.assign({}, users[username] || {}, {
+    email,
+    passwordHash: hashPassword(pw),
+    createdAt: Date.now(),
+  });
+  saveUserToSheets(username);  // async — saves to Sheets + cache
+
+  currentUser = username;
+  writeCache();
+  launchApp();
+}
+
+function handleLogin() {
+  const username = document.getElementById('login-username').value.trim().toLowerCase();
+  const pw       = document.getElementById('login-password').value;
+  const alertEl  = document.getElementById('login-alert');
+
+  alertEl.classList.add('hidden');
+
+  if (!users[username] || !users[username].passwordHash) {
+    alertEl.textContent = 'Account not found. Please register first.';
+    alertEl.classList.remove('hidden'); return;
+  }
+  if (users[username].passwordHash !== hashPassword(pw)) {
+    alertEl.textContent = 'Incorrect password. Try again or ask an admin to reset it.';
+    alertEl.classList.remove('hidden'); return;
+  }
+
+  currentUser = username;
+  writeCache();
+  launchApp();
+}
+
+function handleLogout() {
+  currentUser = null;
+  localStorage.removeItem('stratus_v1_user');
+  notifPanelOpen = false;
+  document.getElementById('notif-panel').classList.remove('open');
+  showScreen('login');
+}
+
+// ══════════════════════════════════════════
+// USER MANAGEMENT MODAL (admins only)
+// ══════════════════════════════════════════
+function openUserMgmt() {
+  const allUsernames = ['jeff','terrell','jeremy','terri'];
+  const listEl = document.getElementById('user-mgmt-list');
+  const col = OWNER_COLORS;
+  listEl.innerHTML = allUsernames.map(u => {
+    const rec = users[u];
+    const display = u.charAt(0).toUpperCase() + u.slice(1);
+    const c = col[u] || col.jeff;
+    const hasAccount = rec && rec.passwordHash;
+    const emailStr = rec && rec.email ? rec.email : 'No account yet';
+    const isYou = u === currentUser;
+    const isAdmin = ['jeff','terrell','jeremy'].includes(u);
+    const roleTag = isAdmin
+      ? '<span style="font-size:0.65rem;font-weight:600;color:var(--brand-mid);background:var(--brand-light);padding:1px 8px;border-radius:50px;margin-left:5px">Admin</span>'
+      : '<span style="font-size:0.65rem;font-weight:600;color:var(--terri-dot);background:var(--terri-bg);padding:1px 8px;border-radius:50px;margin-left:5px">Client</span>';
+    const statusLine = hasAccount
+      ? '<div style="font-size:0.68rem;color:var(--ok);margin-top:2px;font-weight:500">&#10003; Account active</div>'
+      : '<div style="font-size:0.68rem;color:var(--ink4);margin-top:2px">Not yet registered</div>';
+    let actions;
+    if (!isYou && hasAccount) {
+      const pwonclick = 'resetUserPassword(\'' + u + '\')';
+      const fullonclick = 'resetFullAccount(\'' + u + '\')';
+      actions = '<div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;min-width:130px">'
+        + '<button id="reset-pw-btn-' + u + '" onclick="' + pwonclick + '" class="umgmt-pw-btn">'
+          + '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'
+          + ' Reset password</button>'
+        + '<button id="reset-full-btn-' + u + '" onclick="' + fullonclick + '" class="umgmt-del-btn">'
+          + '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>'
+          + ' Reset account</button>'
+        + '</div>';
+    } else if (isYou) {
+      actions = '<span style="font-size:0.72rem;color:var(--ink4)">Your account</span>';
     } else {
-      input.classList.add("error");
-      error.style.display = "block";
+      actions = '<span style="font-size:0.72rem;color:var(--ink4)">Not registered</span>';
     }
+    return '<div class="user-row">'
+      + '<div class="avatar" style="width:34px;height:34px;font-size:0.78rem;background:' + c.dot + ';flex-shrink:0">' + display.charAt(0) + '</div>'
+      + '<div class="user-row-info">'
+        + '<div class="user-row-name" style="display:flex;align-items:center;flex-wrap:wrap;gap:3px">'
+          + display + roleTag + (isYou ? '<span style="font-size:0.65rem;color:var(--ink4)">(you)</span>' : '')
+        + '</div>'
+        + '<div class="user-row-email">' + emailStr + '</div>'
+        + statusLine
+      + '</div>'
+      + actions
+      + '</div>';
+  }).join('');
+  document.getElementById('user-mgmt-modal').classList.remove('hidden');
+}
+
+function resetUserPassword(username) {
+  const display = username.charAt(0).toUpperCase() + username.slice(1);
+  if (!confirm(display + "'s password will be cleared. They must create a new one on their next sign-in. Continue?")) return;
+  if (users[username]) {
+    delete users[username].passwordHash;
+    saveUserToSheets(username);  // saves updated user (no passwordHash) to Sheets
+  }
+  const btn = document.getElementById('reset-pw-btn-' + username);
+  if (btn) { btn.textContent = 'Password cleared'; btn.className = 'reset-btn done-btn'; btn.disabled = true; }
+  const btn2 = document.getElementById('reset-full-btn-' + username);
+  if (btn2) btn2.disabled = true;
+}
+
+function resetFullAccount(username) {
+  const display = username.charAt(0).toUpperCase() + username.slice(1);
+  if (!confirm('FULL RESET for ' + display + ': removes login credentials. Task progress stays intact. They will need to re-register. Continue?')) return;
+  delete users[username];
+  deleteUserFromSheets(username);  // removes user row from Sheets
+  openUserMgmt();
+}
+
+function closeUserMgmt() {
+  document.getElementById('user-mgmt-modal').classList.add('hidden');
+}
+
+function closeUserMgmtOnOverlay(e) {
+  if (e.target === document.getElementById('user-mgmt-modal')) closeUserMgmt();
+}
+
+// ─────────────────────────────────────────
+// DARK MODE
+// ─────────────────────────────────────────
+function toggleDarkMode() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const next = isDark ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('stratus_v1_theme', next);
+  updateDarkIcon(next);
+}
+
+function updateDarkIcon(theme) {
+  const moon = document.getElementById('dark-icon-moon');
+  const sun  = document.getElementById('dark-icon-sun');
+  if (!moon || !sun) return;
+  moon.style.display = theme === 'dark' ? 'none'  : 'block';
+  sun.style.display  = theme === 'dark' ? 'block' : 'none';
+}
+
+(function applyTheme() {
+  const saved = localStorage.getItem('stratus_v1_theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+})();
+
+
+// ══════════════════════════════════════════
+// APP LAUNCH
+// ══════════════════════════════════════════
+
+function launchApp() {
+  updateDarkIcon(localStorage.getItem('stratus_v1_theme') || 'light');
+  ['register','login','otp'].forEach(s => {
+    document.getElementById('screen-'+s).classList.add('hidden');
+  });
+  const app = document.getElementById('app');
+  app.classList.add('visible');
+
+  // Set topbar
+  const uname = currentUser;
+  const display = uname.charAt(0).toUpperCase() + uname.slice(1);
+  document.getElementById('topbar-username').textContent = display;
+
+  const avatar = document.getElementById('topbar-avatar');
+  avatar.textContent = display.charAt(0).toUpperCase();
+  const col = OWNER_COLORS[uname] || OWNER_COLORS.jeff;
+  avatar.style.background = col.dot;
+
+  const isAdmin = ['jeff','terrell','jeremy'].includes(uname);
+  document.getElementById('topbar-notif-wrap').classList.toggle('hidden', !isAdmin);
+  document.getElementById('topbar-acct-wrap').classList.toggle('hidden', !isAdmin);
+
+  if (isAdmin) {
+    buildNotifications();
   }
 
-  function closeLogin() {
-    document.getElementById("overlay").style.display = "none";
-    document.getElementById("pw-input").value = "";
-    document.getElementById("pw-error").style.display = "none";
-    document.getElementById("pw-input").classList.remove("error");
-  }
+  renderDashboard();
+}
 
-  // --- Comment ---
-  function postComment() {
-    const draft = document.getElementById("post-draft").value.trim();
-    if (!draft || !isAdmin) return;
-    const now = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-    comments.push({ id: Date.now(), author: "StratusAi", initials: "SA", time: now, text: draft });
-    saveComments();
-    document.getElementById("post-draft").value = "";
-    document.getElementById("post-btn").disabled = true;
-    renderFeed();
-  }
+// ══════════════════════════════════════════
+// NOTIFICATIONS
+// ══════════════════════════════════════════
 
-  // Enable/disable post button as user types
-  document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("post-draft").addEventListener("input", function() {
-      document.getElementById("post-btn").disabled = !this.value.trim();
-    });
-    document.getElementById("pw-input").addEventListener("keydown", function(e) {
-      if (e.key === "Enter") submitLogin();
-    });
-    document.getElementById("overlay").addEventListener("click", function(e) {
-      if (e.target === this) closeLogin();
-    });
+function buildNotifications() {
+  const uname = currentUser;
+  const myTasks = TASKS.filter(t => t.owner === uname);
+  const notifs = [];
+
+  myTasks.forEach(t => {
+    const status = getTaskStatus(t.id);
+    if (status === 'done') return;
+    const ds = dayStatus(t.due);
+    if (ds === 'behind') {
+      notifs.push({ type: 'behind', task: t, label: 'Overdue', bg: '#fde8e8', icon: '!', iconBg: '#e24b4a' });
+    } else if (ds === 'at-risk') {
+      notifs.push({ type: 'atrisk', task: t, label: 'Due soon', bg: '#fff3d4', icon: '~', iconBg: '#ba7517' });
+    }
   });
 
-  // --- Init ---
-  loadState();
-  renderAll();
+  const badge = document.getElementById('notif-badge');
+  const countLabel = document.getElementById('notif-count-label');
+
+  if (notifs.length > 0) {
+    badge.textContent = notifs.length;
+    badge.style.display = 'flex';
+    countLabel.textContent = `${notifs.length} alert${notifs.length !== 1 ? 's' : ''}`;
+  } else {
+    badge.style.display = 'none';
+    countLabel.textContent = 'All clear';
+  }
+
+  const container = document.getElementById('notif-items');
+  if (notifs.length === 0) {
+    container.innerHTML = `<div class="notif-item"><div class="notif-content"><div class="notif-title" style="color:var(--success)">No alerts — you\'re on track!</div><div class="notif-time">Check back as deadlines approach.</div></div></div>`;
+    return;
+  }
+
+  container.innerHTML = notifs.map(n => `
+    <div class="notif-item">
+      <div class="notif-icon" style="background:${n.iconBg};color:white;font-weight:700;font-size:13px">${n.icon}</div>
+      <div class="notif-content">
+        <div class="notif-title">${n.label}: ${n.task.name}</div>
+        <div class="notif-time">Due ${fmtDate(n.task.due)} · Week ${n.task.week}, ${n.task.day} · ${n.task.deliverable}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleNotifPanel() {
+  notifPanelOpen = !notifPanelOpen;
+  document.getElementById('notif-panel').classList.toggle('open', notifPanelOpen);
+}
+
+document.addEventListener('click', function(e) {
+  const panel = document.getElementById('notif-panel');
+  const btn = document.getElementById('notif-btn');
+  if (notifPanelOpen && panel && !panel.contains(e.target) && btn && !btn.contains(e.target)) {
+    notifPanelOpen = false;
+    panel.classList.remove('open');
+  }
+});
+
+// ══════════════════════════════════════════
+// RENDER: DASHBOARD ROUTER
+// ══════════════════════════════════════════
+
+function renderDashboard() {
+  const container = document.getElementById('main-content');
+  if (currentUser === 'terri') {
+    container.innerHTML = renderTerriDashboard();
+  } else {
+    container.innerHTML = renderAdminDashboard(currentUser);
+    initAdminTabs();
+  }
+  attachCheckboxEvents();
+}
+
+// ══════════════════════════════════════════
+// METRICS HELPERS
+// ══════════════════════════════════════════
+
+function calcMetrics(tasks) {
+  const total = tasks.length;
+  const done = tasks.filter(t => getTaskStatus(t.id) === 'done').length;
+  const inprog = tasks.filter(t => getTaskStatus(t.id) === 'inprog').length;
+  const behind = tasks.filter(t => {
+    const s = getTaskStatus(t.id);
+    return s !== 'done' && dayStatus(t.due) === 'behind';
+  }).length;
+  const atrisk = tasks.filter(t => {
+    const s = getTaskStatus(t.id);
+    return s !== 'done' && dayStatus(t.due) === 'at-risk';
+  }).length;
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  return { total, done, inprog, behind, atrisk, pct };
+}
+
+function weekPct(weekNum, tasks) {
+  const wt = tasks.filter(t => t.week === weekNum);
+  if (!wt.length) return 0;
+  return Math.round((wt.filter(t => getTaskStatus(t.id) === 'done').length / wt.length) * 100);
+}
+
+// ══════════════════════════════════════════
+// RENDER: TERRI DASHBOARD
+// ══════════════════════════════════════════
+
+function renderTerriDashboard() {
+  const allTasks = TASKS;
+  const m = calcMetrics(allTasks);
+
+  const milestones = [
+    { label: 'Calendly Live', desc: 'Brendela recovering 8–12 hrs/week from scheduling', week: 1, done: TASKS.filter(t=>t.deliverable==='Calendly Setup').every(t=>getTaskStatus(t.id)==='done') },
+    { label: 'Gmail Labeled', desc: 'Firm-wide inbox labels and filter rules deployed', week: 2, done: TASKS.filter(t=>t.deliverable==='Gmail Labeling System').every(t=>getTaskStatus(t.id)==='done') },
+    { label: 'HubSpot Form Live', desc: 'All new leads captured automatically — zero going untracked', week: 2, done: TASKS.filter(t=>t.deliverable==='Website Form → HubSpot').every(t=>getTaskStatus(t.id)==='done') },
+    { label: 'ClickUp Running', desc: 'Team communicating in ClickUp — internal email eliminated', week: 2, done: TASKS.filter(t=>t.deliverable==='ClickUp Workspace Build').every(t=>getTaskStatus(t.id)==='done') },
+    { label: 'SOPs & KB Library', desc: 'Core processes documented and searchable by the whole team', week: 3, done: TASKS.filter(t=>t.deliverable==='SOP Authoring & KB Library').every(t=>getTaskStatus(t.id)==='done') },
+    { label: 'Team Training Complete', desc: 'Every staff member trained and confident on all tools', week: 4, done: TASKS.filter(t=>t.deliverable==='Team Training Sessions').every(t=>getTaskStatus(t.id)==='done') },
+    { label: 'Phase 2 Scoped & Approved', desc: 'Automation plan ready — Phase 2 begins immediately', week: 4, done: TASKS.filter(t=>t.deliverable==='Phase 2 Scope Document').every(t=>getTaskStatus(t.id)==='done') },
+  ];
+
+  const doneMs = milestones.filter(m=>m.done).length;
+
+  return `
+  <div class="page-header">
+    <div class="page-title">Levitate Logic — Phase 1 Progress</div>
+    <div class="page-sub">Your view of what's been completed and what's coming next</div>
+  </div>
+
+  <div class="terri-header">
+    <div class="terri-header-title">Overall project progress</div>
+    <div class="terri-header-sub">${m.done} of ${m.total} tasks complete · Week ${getCurrentWeek()} of 4</div>
+    <div class="terri-big-progress" style="margin-top:1.5rem">
+      <div class="terri-big-fill" style="width:${m.pct}%"></div>
+    </div>
+    <div class="terri-pct-label">
+      <span>0%</span>
+      <span style="font-size:1.1rem;font-weight:600;opacity:1">${m.pct}% complete</span>
+      <span>100%</span>
+    </div>
+  </div>
+
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-label">Tasks Complete</div>
+      <div class="metric-value">${m.done}</div>
+      <div class="metric-sub">of ${m.total} total tasks</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Milestones Reached</div>
+      <div class="metric-value">${doneMs}</div>
+      <div class="metric-sub">of ${milestones.length} key milestones</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Current Week</div>
+      <div class="metric-value">${getCurrentWeek()}</div>
+      <div class="metric-sub">of 4 weeks</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">On Track</div>
+      <div class="metric-value" style="color:${m.behind > 0 ? 'var(--danger)' : 'var(--success)'}">${m.behind > 0 ? 'Check' : 'Yes'}</div>
+      <span class="metric-pill ${m.behind > 0 ? 'pill-danger' : 'pill-success'}">${m.behind > 0 ? m.behind + ' overdue' : 'All on track'}</span>
+    </div>
+  </div>
+
+  <div class="progress-section">
+    <div class="progress-header">
+      <div class="progress-title">Week-by-week progress</div>
+    </div>
+    <div class="week-bars">
+      ${[1,2,3,4].map(w => {
+        const wm = calcMetrics(TASKS.filter(t=>t.week===w));
+        const labels = ['Kickoff & Scheduling','Gmail, ClickUp & HubSpot','SOPs & Phase 2 Prep','Training & Close'];
+        const fills = ['w1-fill','w2-fill','w3-fill','w4-fill'];
+        return `
+        <div class="week-bar-item">
+          <div class="week-bar-label"><span>Week ${w}</span><span>${wm.pct}%</span></div>
+          <div class="week-bar-track"><div class="week-bar-fill ${fills[w-1]}" style="width:${wm.pct}%"></div></div>
+          <div style="font-size:0.72rem;color:var(--text3);margin-top:4px">${labels[w-1]}</div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-card-header">
+      <div class="section-card-title">Project milestones</div>
+    </div>
+    <div class="milestone-list">
+      ${milestones.map((ms, i) => `
+      <div class="milestone-item">
+        <div class="milestone-circle ${ms.done ? 'done' : (getCurrentWeek() === ms.week ? 'inprog' : '')}">
+          ${ms.done ? '' : `<span>${i+1}</span>`}
+        </div>
+        <div>
+          <div class="milestone-name" style="${ms.done ? 'text-decoration:line-through;color:var(--text3)' : ''}">${ms.label}</div>
+          <div class="milestone-desc">${ms.desc}</div>
+          <div class="milestone-meta">
+            <span class="task-status-badge ${ms.done ? 'status-done' : (getCurrentWeek() === ms.week ? 'status-inprog' : 'status-todo')}">${ms.done ? 'Complete' : (getCurrentWeek() === ms.week ? 'In progress' : 'Upcoming')}</span>
+            <span>Week ${ms.week}</span>
+          </div>
+        </div>
+      </div>
+      `).join('')}
+    </div>
+  </div>
+  `;
+}
+
+function getCurrentWeek() {
+  const diff = Math.floor((TODAY - PROJECT_START) / (7 * 86400000));
+  return Math.min(4, Math.max(1, diff + 1));
+}
+
+// ══════════════════════════════════════════
+// RENDER: ADMIN DASHBOARD
+// ══════════════════════════════════════════
+
+let adminActiveTab = 'my';
+
+function renderAdminDashboard(uname) {
+  const myTasks = TASKS.filter(t => t.owner === uname);
+  const allTasks = TASKS;
+  const myM = calcMetrics(myTasks);
+  const allM = calcMetrics(allTasks);
+  const col = OWNER_COLORS[uname];
+  const display = uname.charAt(0).toUpperCase() + uname.slice(1);
+
+  return `
+  <div class="page-header">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="avatar" style="width:40px;height:40px;font-size:1rem;background:${col.dot}">${display.charAt(0)}</div>
+      <div>
+        <div class="page-title">${display}'s Dashboard</div>
+        <div class="page-sub">Levitate Logic — Phase 1 · Week ${getCurrentWeek()} of 4</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- My metrics -->
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-label">My Tasks</div>
+      <div class="metric-value">${myM.done}<span style="font-size:1rem;color:var(--text3);font-weight:400"> / ${myM.total}</span></div>
+      <div class="metric-sub">tasks complete</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">My Progress</div>
+      <div class="metric-value" style="color:${col.dot}">${myM.pct}%</div>
+      <div style="background:var(--surface2);border-radius:4px;height:6px;margin-top:8px;overflow:hidden">
+        <div style="height:100%;background:${col.dot};border-radius:4px;width:${myM.pct}%;transition:width 0.5s ease"></div>
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Overdue</div>
+      <div class="metric-value" style="color:${myM.behind > 0 ? 'var(--danger)' : 'var(--success)'}">${myM.behind}</div>
+      <span class="metric-pill ${myM.behind > 0 ? 'pill-danger' : 'pill-success'}">${myM.behind > 0 ? 'Needs attention' : 'None overdue'}</span>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Due Soon</div>
+      <div class="metric-value" style="color:${myM.atrisk > 0 ? 'var(--warn)' : 'var(--text3)'}">${myM.atrisk}</div>
+      <span class="metric-pill ${myM.atrisk > 0 ? 'pill-warn' : 'pill-info'}">${myM.atrisk > 0 ? 'Within 2 days' : 'All clear'}</span>
+    </div>
+  </div>
+
+  <!-- Week progress mini -->
+  <div class="progress-section">
+    <div class="progress-header">
+      <div class="progress-title">Overall project — all team members</div>
+      <div class="progress-pct">${allM.pct}%</div>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" style="width:${allM.pct}%"></div>
+    </div>
+    <div style="display:flex;gap:1.5rem;flex-wrap:wrap">
+      <span style="font-size:0.78rem;color:var(--text3)">${allM.done} done &nbsp;·&nbsp; ${allM.inprog} in progress &nbsp;·&nbsp; ${allM.behind} overdue &nbsp;·&nbsp; ${allM.total - allM.done} remaining</span>
+    </div>
+    <div class="week-bars" style="margin-top:1.25rem">
+      ${[1,2,3,4].map(w => {
+        const wm = calcMetrics(TASKS.filter(t=>t.week===w));
+        const fills = ['w1-fill','w2-fill','w3-fill','w4-fill'];
+        return `
+        <div class="week-bar-item">
+          <div class="week-bar-label"><span>Week ${w}</span><span>${wm.pct}%</span></div>
+          <div class="week-bar-track"><div class="week-bar-fill ${fills[w-1]}" style="width:${wm.pct}%"></div></div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tab-row">
+    <button class="tab-btn ${adminActiveTab==='my'?'active':''}" onclick="switchTab('my')">My tasks</button>
+    <button class="tab-btn ${adminActiveTab==='all'?'active':''}" onclick="switchTab('all')">Full project</button>
+  </div>
+
+  <!-- Tab content -->
+  <div id="tab-content">
+    ${adminActiveTab === 'my' ? renderMyTasks(uname) : renderAllTasks()}
+  </div>
+  `;
+}
+
+function renderMyTasks(uname) {
+  const myTasks = TASKS.filter(t => t.owner === uname);
+  const byDeliverable = {};
+  myTasks.forEach(t => {
+    if (!byDeliverable[t.deliverable]) byDeliverable[t.deliverable] = [];
+    byDeliverable[t.deliverable].push(t);
+  });
+
+  const chevron = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`;
+
+  return Object.entries(byDeliverable).map(([deliv, tasks]) => {
+    const done = tasks.filter(t => getTaskStatus(t.id) === 'done').length;
+    const pct  = Math.round((done / tasks.length) * 100);
+    const did  = deliv.replace(/[^a-z0-9]/gi, '-').toLowerCase();
+    const hasInsight = !!DELIVERABLE_INSIGHTS[deliv];
+    return `
+    <div class="section-card">
+      <div class="section-card-header">
+        <div class="section-card-title">
+          ${deliv}
+          <span style="font-size:0.75rem;font-weight:400;color:var(--text3)">${done}/${tasks.length} done</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          ${hasInsight ? `<button class="insight-toggle" id="insight-btn-${did}" onclick="toggleInsight('${did}')">
+            ${chevron}<span class="insight-lbl">View strategy &amp; examples</span>
+          </button>` : ''}
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="background:var(--surface2);border-radius:4px;height:6px;width:80px;overflow:hidden">
+              <div style="height:100%;background:var(--mid-blue);border-radius:4px;width:${pct}%;transition:width 0.5s"></div>
+            </div>
+            <span style="font-size:0.78rem;color:var(--text3)">${pct}%</span>
+          </div>
+        </div>
+      </div>
+      ${hasInsight ? renderInsightDrawer(deliv, did) : ''}
+      <div class="task-row-header">
+        <div></div>
+        <div>Task</div>
+        <div>Week / Day</div>
+        <div>Due date</div>
+        <div>Status</div>
+      </div>
+      ${tasks.map(t => renderTaskRow(t) + renderCommentSection(t.id)).join('')}
+    </div>`;
+  }).join('');
+}
+function renderAllTasks() {
+  const byWeek = {};
+  TASKS.forEach(t => {
+    if (!byWeek[t.week]) byWeek[t.week] = [];
+    byWeek[t.week].push(t);
+  });
+
+  const weekLabels = ['Kickoff & Scheduling Live','Gmail, ClickUp Comms & HubSpot Form','SOPs, KB Library & Phase 2 Research','Training, QA & Phase 1 Close'];
+
+  return Object.entries(byWeek).map(([week, tasks]) => {
+    const wm = calcMetrics(tasks);
+    return `
+    <div class="section-card">
+      <div class="section-card-header">
+        <div class="section-card-title">
+          Week ${week} — ${weekLabels[Number(week)-1]}
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="background:var(--surface2);border-radius:4px;height:6px;width:80px;overflow:hidden">
+            <div style="height:100%;background:var(--mid-blue);border-radius:4px;width:${wm.pct}%;transition:width 0.5s"></div>
+          </div>
+          <span style="font-size:0.78rem;color:var(--text3)">${wm.pct}% · ${wm.done}/${wm.total}</span>
+        </div>
+      </div>
+      <div class="task-row-header">
+        <div></div>
+        <div>Task</div>
+        <div>Owner</div>
+        <div>Due date</div>
+        <div>Status</div>
+      </div>
+      ${tasks.map(t => renderTaskRow(t, true) + renderCommentSection(t.id)).join('')}
+    </div>`;
+  }).join('');
+}
+
+function renderTaskRow(task, showOwner = false) {
+  const status = getTaskStatus(task.id);
+  const isDone = status === 'done';
+  const ds = isDone ? 'ok' : dayStatus(task.due);
+  const col = OWNER_COLORS[task.owner];
+
+  const statusLabel = { todo: 'To do', inprog: 'In progress', done: 'Complete', behind: 'Behind', 'at-risk': 'At risk' };
+  const statusClass = { todo: 'status-todo', inprog: 'status-inprog', done: 'status-done', behind: 'status-behind', 'at-risk': 'status-atrisk' };
+
+  const effectiveStatus = isDone ? 'done' : (ds === 'behind' ? 'behind' : (ds === 'at-risk' ? 'at-risk' : status));
+
+  return `
+  <div class="task-row ${isDone ? 'completed' : ''}">
+    <div>
+      <div class="task-check ${isDone ? 'done' : ''}" onclick="toggleTask('${task.id}')" title="Mark as complete"></div>
+    </div>
+    <div>
+      <div class="task-name ${isDone ? 'done' : ''}">${task.name}</div>
+      <div class="task-deliverable">${task.deliverable} · Week ${task.week}, ${task.day}</div>
+    </div>
+    <div class="${showOwner ? '' : ''}">
+      ${showOwner ? `
+        <span class="owner-badge" style="background:${col.bg};color:${col.fg}">
+          <span class="task-owner-dot" style="background:${col.dot}"></span>
+          ${task.owner.charAt(0).toUpperCase() + task.owner.slice(1)}
+        </span>
+      ` : `<span style="font-size:0.8rem;color:var(--text3)">Week ${task.week} · ${task.day}</span>`}
+    </div>
+    <div class="task-due ${ds === 'behind' ? 'overdue' : (ds === 'at-risk' ? 'due-soon' : '')}">
+      ${ds === 'behind' && !isDone ? '⚠ ' : ''}${fmtDate(task.due)}
+    </div>
+    <div>
+      <span class="task-status-badge ${statusClass[effectiveStatus] || 'status-todo'}">
+        ${statusLabel[effectiveStatus] || 'To do'}
+      </span>
+    </div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════
+// INTERACTIONS
+// ══════════════════════════════════════════
+
+function switchTab(tab) {
+  adminActiveTab = tab;
+  const uname = currentUser;
+  const tabContent = document.getElementById('tab-content');
+  if (tab === 'my') {
+    tabContent.innerHTML = renderMyTasks(uname);
+  } else {
+    tabContent.innerHTML = renderAllTasks();
+  }
+  attachCheckboxEvents();
+  // Update tab buttons
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent.trim().startsWith(tab === 'my' ? 'My' : 'Full'));
+  });
+}
+
+function toggleTask(taskId) {
+  const current = getTaskStatus(taskId);
+  const newStatus = current === 'done' ? 'todo' : 'done';
+  taskState[taskId] = newStatus;
+  saveTaskToSheets(taskId, newStatus);  // async — saves to Sheets
+
+  if (['jeff','terrell','jeremy'].includes(currentUser)) {
+    buildNotifications();
+  }
+  renderDashboard();
+}
+
+function attachCheckboxEvents() {
+  // Already handled via onclick in HTML
+}
+
+function initAdminTabs() {
+  // Tab state already managed
+}
+
+// ══════════════════════════════════════════
+// STARTUP
+// ══════════════════════════════════════════
+
+document.addEventListener('DOMContentLoaded', function() {
+  if (currentUser && users[currentUser]) {
+    launchApp();
+  } else {
+    showScreen('login');
+  }
+});
 </script>
 </body>
 </html>
