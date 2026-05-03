@@ -954,6 +954,46 @@
   .umgmt-del-btn:hover { background:var(--danger-bg); }
 
   /* ═══════════════════════════════════════════
+     PIN ENTRY SCREEN
+  ═══════════════════════════════════════════ */
+  .pin-dots {
+    display: flex; gap: 14px; justify-content: center;
+    margin: 1.75rem 0 1.25rem;
+  }
+  .pin-dot {
+    width: 18px; height: 18px; border-radius: 50%;
+    border: 2px solid var(--line2);
+    background: var(--white);
+    transition: all 0.18s;
+  }
+  .pin-dot.filled { background: var(--brand); border-color: var(--brand); }
+  .pin-dot.error  { background: var(--danger); border-color: var(--danger); }
+  .pin-pad {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 10px; max-width: 240px; margin: 0 auto;
+  }
+  .pin-key {
+    height: 56px; border-radius: var(--r-sm);
+    border: 1.5px solid var(--line2); background: var(--white);
+    font-size: 1.2rem; font-weight: 600; font-family: inherit;
+    color: var(--ink); cursor: pointer;
+    transition: background 0.12s, border-color 0.12s, transform 0.08s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .pin-key:hover  { background: var(--brand-light); border-color: var(--brand-mid); }
+  .pin-key:active { transform: scale(0.94); }
+  .pin-key.delete { font-size: 1rem; color: var(--ink3); }
+  .pin-key.wide   { grid-column: span 3; font-size: 0.88rem; letter-spacing: 0.03em; }
+  .pin-shake { animation: pin-shake 0.35s ease; }
+  @keyframes pin-shake {
+    0%,100%{ transform:translateX(0); }
+    20%    { transform:translateX(-6px); }
+    40%    { transform:translateX(6px); }
+    60%    { transform:translateX(-4px); }
+    80%    { transform:translateX(4px); }
+  }
+
+  /* ═══════════════════════════════════════════
      RESPONSIVE
   ═══════════════════════════════════════════ */
   @media (max-width: 900px) {
@@ -1039,6 +1079,14 @@ document.addEventListener('DOMContentLoaded', function() {
         <label>Confirm password</label>
         <input type="password" id="reg-password2" placeholder="Repeat your password">
       </div>
+      <div class="field">
+        <label>4-digit PIN <span style="font-weight:400;color:var(--ink3);font-size:0.7rem;text-transform:none;letter-spacing:0">&mdash; required for every login</span></label>
+        <input type="password" id="reg-pin" placeholder="Choose a 4-digit PIN" maxlength="4" inputmode="numeric" pattern="[0-9]*">
+      </div>
+      <div class="field">
+        <label>Confirm PIN</label>
+        <input type="password" id="reg-pin2" placeholder="Repeat your PIN" maxlength="4" inputmode="numeric" pattern="[0-9]*">
+      </div>
       <button class="btn" onclick="handleRegister()">Create account</button>
       <p class="auth-note">Already registered? <a onclick="showScreen('login')">Sign in instead</a></p>
     </div>
@@ -1090,6 +1138,58 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- otp screen removed — password auth used instead -->
 <div class="auth-wrap hidden" id="screen-otp"></div>
+
+<!-- PIN VERIFICATION SCREEN -->
+<div class="auth-wrap hidden" id="screen-pin">
+  <div class="auth-panel-left">
+    <div class="auth-left-top">
+      <img src="" class="stratus-logo-img" alt="StratusAi" style="height:44px;width:auto;display:block;object-fit:contain;flex-shrink:0">
+    </div>
+    <div class="auth-left-mid">
+      <div class="auth-left-headline">Levitate Logic<br>Phase 1 Dashboard</div>
+      <div class="auth-left-sub">Real-time task tracking, deliverable management, and project intelligence for the engagement team.</div>
+      <div class="auth-stats-grid">
+        <div class="auth-stat"><div class="auth-stat-val">4</div><div class="auth-stat-lbl">Week engagement</div></div>
+        <div class="auth-stat"><div class="auth-stat-val">15</div><div class="auth-stat-lbl">Deliverables</div></div>
+        <div class="auth-stat"><div class="auth-stat-val">3</div><div class="auth-stat-lbl">Team members</div></div>
+        <div class="auth-stat"><div class="auth-stat-val">12h</div><div class="auth-stat-lbl">Saved weekly</div></div>
+      </div>
+    </div>
+    <div class="auth-left-footer">Confidential &middot; StratusAi LLC &middot; Prepared for Levitate Logic</div>
+  </div>
+  <div class="auth-panel-right">
+    <div class="auth-form-inner">
+      <div class="auth-form-logomark-wrap" style="margin-bottom:2rem">
+        <img src="" class="stratus-logo-img" alt="StratusAi" style="height:40px;width:auto;display:block;object-fit:contain">
+      </div>
+      <div class="auth-eyebrow">Step 2 of 2</div>
+      <div class="auth-heading">Enter your PIN</div>
+      <div class="auth-sub-text" id="pin-sub">Enter your 4-digit PIN to complete sign-in.</div>
+      <div id="pin-alert" class="alert error hidden"></div>
+      <div class="pin-dots" id="pin-dots">
+        <div class="pin-dot" id="pd-0"></div>
+        <div class="pin-dot" id="pd-1"></div>
+        <div class="pin-dot" id="pd-2"></div>
+        <div class="pin-dot" id="pd-3"></div>
+      </div>
+      <div class="pin-pad" id="pin-pad">
+        <button class="pin-key" onclick="pinKey('1')">1</button>
+        <button class="pin-key" onclick="pinKey('2')">2</button>
+        <button class="pin-key" onclick="pinKey('3')">3</button>
+        <button class="pin-key" onclick="pinKey('4')">4</button>
+        <button class="pin-key" onclick="pinKey('5')">5</button>
+        <button class="pin-key" onclick="pinKey('6')">6</button>
+        <button class="pin-key" onclick="pinKey('7')">7</button>
+        <button class="pin-key" onclick="pinKey('8')">8</button>
+        <button class="pin-key" onclick="pinKey('9')">9</button>
+        <button class="pin-key delete" onclick="pinKey('clear')">Clear</button>
+        <button class="pin-key" onclick="pinKey('0')">0</button>
+        <button class="pin-key delete" onclick="pinKey('back')">&#9003;</button>
+      </div>
+      <p class="auth-note" style="margin-top:1.5rem"><a onclick="showScreen('login')">&#8592; Back to sign in</a></p>
+    </div>
+  </div>
+</div>
 
 <!-- ══════════════════════════════════════════
      MAIN APP
@@ -2018,7 +2118,7 @@ function getCompletedCount(tasks) {
 // ══════════════════════════════════════════
 
 function showScreen(name) {
-  ['register','login','otp'].forEach(s => {
+  ['register','login','otp','pin'].forEach(s => {
     const el = document.getElementById('screen-'+s);
     if (el) el.classList.toggle('hidden', s !== name);
   });
@@ -2060,6 +2160,8 @@ function handleRegister() {
   const email     = document.getElementById('reg-email').value.trim();
   const pw        = document.getElementById('reg-password').value;
   const pw2       = document.getElementById('reg-password2').value;
+  const pin       = document.getElementById('reg-pin').value.trim();
+  const pin2      = document.getElementById('reg-pin2').value.trim();
   const alertEl   = document.getElementById('reg-alert');
 
   alertEl.classList.add('hidden');
@@ -2081,23 +2183,34 @@ function handleRegister() {
     alertEl.textContent = 'Passwords do not match.';
     alertEl.classList.remove('hidden'); return;
   }
+  if (!/^[0-9]{4}$/.test(pin)) {
+    alertEl.textContent = 'PIN must be exactly 4 digits (numbers only).';
+    alertEl.classList.remove('hidden'); return;
+  }
+  if (pin !== pin2) {
+    alertEl.textContent = 'PINs do not match.';
+    alertEl.classList.remove('hidden'); return;
+  }
   if (users[username] && users[username].passwordHash) {
     alertEl.textContent = 'This account already exists. Sign in instead, or ask an admin to reset your password.';
     alertEl.classList.remove('hidden'); return;
   }
 
-  // Store user — merge so existing task data is not lost
   users[username] = Object.assign({}, users[username] || {}, {
     email,
     passwordHash: hashPassword(pw),
+    pinHash: hashPassword(pin),
     createdAt: Date.now(),
   });
-  saveUserToSheets(username);  // async — saves to Sheets + cache
+  saveUserToSheets(username);
 
   currentUser = username;
   writeCache();
   launchApp();
 }
+
+// Holds the username between password check and PIN verification
+let _pendingPinUser = null;
 
 function handleLogin() {
   const username = document.getElementById('login-username').value.trim().toLowerCase();
@@ -2114,18 +2227,92 @@ function handleLogin() {
     alertEl.textContent = 'Incorrect password. Try again or ask an admin to reset it.';
     alertEl.classList.remove('hidden'); return;
   }
+  if (!users[username].pinHash) {
+    // No PIN on file — legacy account, let them in and prompt to set PIN after
+    currentUser = username;
+    writeCache();
+    launchApp();
+    return;
+  }
 
-  currentUser = username;
-  writeCache();
-  launchApp();
+  // Password correct — go to PIN screen
+  _pendingPinUser = username;
+  _pinBuffer = '';
+  updatePinDots();
+  document.getElementById('pin-alert').classList.add('hidden');
+  document.getElementById('pin-sub').textContent = 'Enter your 4-digit PIN to complete sign-in.';
+  showScreen('pin');
 }
 
 function handleLogout() {
   currentUser = null;
+  _pendingPinUser = null;
+  _pinBuffer = '';
   localStorage.removeItem('stratus_v1_user');
   notifPanelOpen = false;
   document.getElementById('notif-panel').classList.remove('open');
   showScreen('login');
+}
+
+// ── PIN KEYPAD LOGIC ─────────────────────────────────────────
+let _pinBuffer = '';
+
+function pinKey(k) {
+  if (k === 'clear') {
+    _pinBuffer = '';
+  } else if (k === 'back') {
+    _pinBuffer = _pinBuffer.slice(0, -1);
+  } else if (_pinBuffer.length < 4) {
+    _pinBuffer += k;
+  }
+  updatePinDots();
+  if (_pinBuffer.length === 4) {
+    setTimeout(verifyPin, 120); // tiny delay so last dot fills visually
+  }
+}
+
+function updatePinDots() {
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById('pd-' + i);
+    if (!dot) continue;
+    dot.classList.remove('filled', 'error');
+    if (i < _pinBuffer.length) dot.classList.add('filled');
+  }
+}
+
+function verifyPin() {
+  const username = _pendingPinUser;
+  if (!username || !users[username]) {
+    showScreen('login'); return;
+  }
+  if (users[username].pinHash === hashPassword(_pinBuffer)) {
+    // PIN correct — let them in
+    currentUser = username;
+    _pendingPinUser = null;
+    _pinBuffer = '';
+    writeCache();
+    launchApp();
+  } else {
+    // Wrong PIN — shake and clear
+    for (let i = 0; i < 4; i++) {
+      const dot = document.getElementById('pd-' + i);
+      if (dot) dot.classList.add('error');
+    }
+    const dotsEl = document.getElementById('pin-dots');
+    if (dotsEl) {
+      dotsEl.classList.add('pin-shake');
+      setTimeout(() => {
+        dotsEl.classList.remove('pin-shake');
+        _pinBuffer = '';
+        updatePinDots();
+      }, 400);
+    }
+    const alertEl = document.getElementById('pin-alert');
+    if (alertEl) {
+      alertEl.textContent = 'Incorrect PIN. Please try again.';
+      alertEl.classList.remove('hidden');
+    }
+  }
 }
 
 // ══════════════════════════════════════════
@@ -2152,11 +2339,16 @@ function openUserMgmt() {
     let actions;
     if (!isYou && hasAccount) {
       const pwonclick = 'resetUserPassword(\'' + u + '\')';
+      const pinonclick = 'resetUserPin(\'' + u + '\')';
       const fullonclick = 'resetFullAccount(\'' + u + '\')';
+      const hasPinSet = rec && rec.pinHash;
       actions = '<div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;min-width:130px">'
         + '<button id="reset-pw-btn-' + u + '" onclick="' + pwonclick + '" class="umgmt-pw-btn">'
           + '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'
           + ' Reset password</button>'
+        + '<button id="reset-pin-btn-' + u + '" onclick="' + pinonclick + '" class="umgmt-pw-btn" style="color:var(--terri-dot);border-color:rgba(108,63,200,0.3)">'
+          + '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>'
+          + ' Reset PIN' + (hasPinSet ? '' : ' <span style=\"font-size:0.65rem;opacity:0.6\">(not set)</span>') + '</button>'
         + '<button id="reset-full-btn-' + u + '" onclick="' + fullonclick + '" class="umgmt-del-btn">'
           + '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>'
           + ' Reset account</button>'
@@ -2192,6 +2384,17 @@ function resetUserPassword(username) {
   if (btn) { btn.textContent = 'Password cleared'; btn.className = 'reset-btn done-btn'; btn.disabled = true; }
   const btn2 = document.getElementById('reset-full-btn-' + username);
   if (btn2) btn2.disabled = true;
+}
+
+function resetUserPin(username) {
+  const display = username.charAt(0).toUpperCase() + username.slice(1);
+  if (!confirm("Reset " + display + "'s PIN? They will be prompted to set a new one on next login.")) return;
+  if (users[username]) {
+    delete users[username].pinHash;
+    saveUserToSheets(username);
+  }
+  const btn = document.getElementById('reset-pin-btn-' + username);
+  if (btn) { btn.textContent = 'PIN cleared'; btn.className = 'reset-btn done-btn'; btn.disabled = true; }
 }
 
 function resetFullAccount(username) {
