@@ -954,6 +954,109 @@
   .umgmt-del-btn:hover { background:var(--danger-bg); }
 
   /* ═══════════════════════════════════════════
+     TIME TRACKING
+  ═══════════════════════════════════════════ */
+  .time-toggle {
+    display:inline-flex;align-items:center;gap:5px;
+    font-size:0.75rem;color:var(--ink3);background:none;border:none;
+    cursor:pointer;padding:4px 1.5rem;font-family:inherit;
+    transition:color 0.15s;border-top:1px solid var(--line);
+    width:100%;text-align:left;
+  }
+  .time-toggle:hover { color:var(--brand);background:var(--canvas); }
+  .time-tracker-wrap {
+    border-top:1px solid var(--line);background:var(--canvas);
+    overflow:hidden;max-height:0;
+    transition:max-height 0.35s cubic-bezier(0.4,0,0.2,1);
+  }
+  .time-tracker-wrap.open { max-height:600px; }
+  .time-tracker-inner { padding:1rem 1.5rem; }
+  .time-entry-row {
+    display:flex;align-items:center;gap:10px;
+    padding:6px 0;border-bottom:1px solid var(--line);font-size:0.8rem;
+  }
+  .time-entry-row:last-child { border-bottom:none; }
+  .time-entry-label { color:var(--ink2);flex:1; }
+  .time-entry-dur { font-weight:600;color:var(--brand);font-variant-numeric:tabular-nums;min-width:60px;text-align:right; }
+  .time-entry-del { background:none;border:none;cursor:pointer;color:var(--ink4);padding:2px 4px;border-radius:3px;font-size:11px; }
+  .time-entry-del:hover { color:var(--danger); }
+  .time-total-row { display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:8px;border-top:2px solid var(--line2); }
+  .time-total-label { font-size:0.75rem;font-weight:600;color:var(--ink2);text-transform:uppercase;letter-spacing:0.06em; }
+  .time-total-val { font-size:1rem;font-weight:700;color:var(--brand); }
+  .time-actions { display:flex;gap:8px;margin-top:10px;flex-wrap:wrap; }
+  .time-btn {
+    display:inline-flex;align-items:center;gap:5px;
+    padding:6px 14px;border-radius:var(--r-sm);
+    font-size:0.78rem;font-weight:600;font-family:inherit;
+    cursor:pointer;transition:all 0.15s;border:1.5px solid;
+  }
+  .time-btn-start { background:var(--ok-bg);color:var(--ok);border-color:rgba(13,122,80,.3); }
+  .time-btn-start:hover { background:var(--ok);color:white; }
+  .time-btn-stop  { background:var(--danger-bg);color:var(--danger);border-color:rgba(155,28,28,.3); }
+  .time-btn-stop:hover  { background:var(--danger);color:white; }
+  .time-btn-manual { background:var(--brand-light);color:var(--brand-mid);border-color:var(--brand-glow); }
+  .time-btn-manual:hover { background:var(--brand);color:white; }
+  .time-running-badge {
+    display:inline-flex;align-items:center;gap:5px;
+    font-size:0.72rem;font-weight:600;color:var(--ok);
+    background:var(--ok-bg);padding:2px 9px;border-radius:50px;
+    border:1px solid rgba(13,122,80,.2);
+  }
+  .time-running-dot { width:6px;height:6px;border-radius:50%;background:var(--ok);animation:pulse-dot 1.2s infinite; }
+  @keyframes pulse-dot { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+  .time-manual-form { display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px; }
+  .time-manual-form input[type=datetime-local] {
+    padding:5px 8px;border:1.5px solid var(--line2);border-radius:var(--r-sm);
+    font-size:0.78rem;font-family:inherit;color:var(--ink);background:var(--white);outline:none;
+  }
+  .time-manual-form input:focus { border-color:var(--brand-mid); }
+
+  
+  /* STATUS DROPDOWN */
+  .status-select{appearance:none;-webkit-appearance:none;padding:3px 22px 3px 9px;border-radius:50px;font-size:0.68rem;font-weight:600;font-family:inherit;cursor:pointer;border:none;outline:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 5px center;transition:filter 0.15s;}
+  .status-select.status-todo  {background-color:var(--canvas2);color:var(--ink3);}
+  .status-select.status-inprog{background-color:var(--brand-light);color:var(--brand-mid);}
+  .status-select.status-done  {background-color:var(--ok-bg);color:var(--ok);}
+  .status-select.status-behind{background-color:var(--danger-bg);color:var(--danger);}
+  .status-select.status-atrisk{background-color:var(--warn-bg);color:var(--warn);}
+  .status-select:hover{filter:brightness(0.95);}
+
+  /* ACTIVITY FEED */
+  .feed-wrap{background:var(--white);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:1.25rem;}
+  .feed-header{padding:0.875rem 1.5rem;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;}
+  .feed-title{font-size:0.85rem;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:8px;}
+  .feed-live-dot{width:7px;height:7px;border-radius:50%;background:var(--ok);animation:pulse-dot 1.5s infinite;flex-shrink:0;}
+  .feed-list{max-height:300px;overflow-y:auto;}
+  .feed-item{display:flex;align-items:flex-start;gap:12px;padding:0.7rem 1.5rem;border-bottom:1px solid var(--line);transition:background 0.1s;}
+  .feed-item:last-child{border-bottom:none;}
+  .feed-item:hover{background:var(--canvas);}
+  .feed-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;color:white;flex-shrink:0;}
+  .feed-body{flex:1;min-width:0;}
+  .feed-text{font-size:0.8rem;color:var(--ink);line-height:1.45;}
+  .feed-meta{font-size:0.7rem;color:var(--ink3);margin-top:2px;}
+  .feed-badge{font-size:0.62rem;font-weight:600;padding:2px 8px;border-radius:50px;flex-shrink:0;margin-top:2px;text-transform:uppercase;letter-spacing:0.06em;}
+  .feed-badge-task{background:var(--ok-bg);color:var(--ok);}
+  .feed-badge-comment{background:var(--brand-light);color:var(--brand-mid);}
+  .feed-badge-status{background:var(--warn-bg);color:var(--warn);}
+  .feed-empty{text-align:center;padding:2rem;font-size:0.8rem;color:var(--ink3);font-style:italic;}
+
+  /* TERRI CLIENT PORTAL */
+  .client-section-label{font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink3);padding:0.75rem 1.5rem 0.35rem;background:var(--canvas);border-bottom:1px solid var(--line);}
+  .pending-item{display:flex;align-items:flex-start;gap:12px;padding:0.875rem 1.5rem;border-bottom:1px solid var(--line);}
+  .pending-item:last-child{border-bottom:none;}
+  .pending-icon{width:30px;height:30px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .pending-icon.blocked{background:var(--danger-bg);color:var(--danger);}
+  .pending-icon.waiting{background:var(--warn-bg);color:var(--warn);}
+  .pending-icon.active{background:var(--brand-light);color:var(--brand-mid);}
+  .pending-icon.complete{background:var(--ok-bg);color:var(--ok);}
+  .pending-task-name{font-size:0.83rem;font-weight:500;color:var(--ink);}
+  .pending-task-meta{font-size:0.72rem;color:var(--ink3);margin-top:3px;}
+  .approval-btn{margin-top:6px;display:inline-flex;align-items:center;gap:5px;padding:5px 14px;border-radius:50px;font-size:0.75rem;font-weight:600;font-family:inherit;cursor:pointer;border:none;transition:all 0.15s;background:var(--brand);color:white;}
+  .approval-btn:hover{background:var(--brand-mid);}
+  .approval-btn.approved{background:var(--ok-bg);color:var(--ok);cursor:default;}
+
+
+  /* ═══════════════════════════════════════════
      PIN ENTRY SCREEN
   ═══════════════════════════════════════════ */
   .pin-dots {
@@ -1219,9 +1322,13 @@ document.addEventListener('DOMContentLoaded', function() {
           <span class="notif-badge" id="notif-badge" style="display:none">0</span>
         </button>
       </div>
-      <div id="topbar-acct-wrap" class="hidden">
+      <div id="topbar-acct-wrap" class="hidden" style="display:flex;gap:6px;align-items:center">
+        <button class="topbar-acct-btn" onclick="exportTaskReport()" title="Export time report to CSV">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export
+        </button>
         <button class="topbar-acct-btn" onclick="openUserMgmt()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           Users
         </button>
       </div>
@@ -1753,7 +1860,9 @@ const DELIVERABLE_INSIGHTS = {
 // ══════════════════════════════════════════
 // COMMENTS STATE
 // ══════════════════════════════════════════
-let comments = {};   // { taskId: [ { author, text, ts } ] }
+let comments = {};     // { taskId: [ { author, text, ts } ] }
+let timeEntries = {};  // { taskId: [ { author, start, end, note } ] }
+let activeTimers = {}; // { taskId: { start: timestamp } } — running timers
 let taskCommentsOpen = {};
 
 // ══════════════════════════════════════════
@@ -1818,9 +1927,11 @@ function applyLocalCache() {
   if (savedUser) currentUser = savedUser;
   try {
     const cache = JSON.parse(localStorage.getItem(LS_CACHE) || '{}');
-    if (cache.users)     Object.assign(users, cache.users);
-    if (cache.taskState) Object.assign(taskState, cache.taskState);
-    if (cache.comments)  Object.assign(comments, cache.comments);
+    if (cache.users)      Object.assign(users, cache.users);
+    if (cache.taskState)  Object.assign(taskState, cache.taskState);
+    if (cache.comments)   Object.assign(comments, cache.comments);
+    if(cache.activityFeed)activityFeed=cache.activityFeed;
+    if (cache.timeEntries) Object.assign(timeEntries, cache.timeEntries);
   } catch(e) {}
 }
 
@@ -1853,11 +1964,27 @@ async function loadStateFromSheets() {
       if (!rebuilt[c.taskId]) rebuilt[c.taskId] = [];
       rebuilt[c.taskId].push({ author: c.author, text: c.text, ts: Number(c.timestamp) || 0 });
     });
-    // Check if comment counts changed
     Object.keys(rebuilt).forEach(tid => {
       if ((comments[tid] || []).length !== rebuilt[tid].length) changed = true;
     });
     if (changed) comments = rebuilt;
+  }
+  if (data.timeEntries) {
+    const rebuiltT = {};
+    data.timeEntries.forEach(e => {
+      if (!e.taskId) return;
+      if (!rebuiltT[e.taskId]) rebuiltT[e.taskId] = [];
+      rebuiltT[e.taskId].push({
+        author: e.author || '',
+        start:  Number(e.start) || 0,
+        end:    Number(e.end)   || 0,
+        note:   e.note          || ''
+      });
+    });
+    Object.keys(rebuiltT).forEach(tid => {
+      if ((timeEntries[tid] || []).length !== rebuiltT[tid].length) changed = true;
+    });
+    if (changed) timeEntries = rebuiltT;
   }
   writeCache();
   if (changed && currentUser) renderDashboard();
@@ -1910,10 +2037,18 @@ async function saveCommentToSheets(taskId, comment) {
   }
 }
 
+async function saveTimeEntryToSheets(taskId, entry) {
+  const row = { taskId, author: entry.author, start: entry.start, end: entry.end, note: entry.note || '' };
+  writeCache();
+  if (SHEETS_URL) {
+    await sheetsCall({ action: 'addTimeEntry', data: JSON.stringify(row) });
+  }
+}
+
 // ── Write everything to local cache ──────────────────────────
 function writeCache() {
   try {
-    localStorage.setItem(LS_CACHE, JSON.stringify({ users, taskState, comments }));
+    localStorage.setItem(LS_CACHE, JSON.stringify({ users, taskState, comments, timeEntries }));
     if (currentUser) localStorage.setItem(LS_USER, currentUser);
     else localStorage.removeItem(LS_USER);
   } catch(e) {}
@@ -1956,7 +2091,8 @@ function postComment(taskId) {
   if (!comments[taskId]) comments[taskId] = [];
   const newComment = { author: currentUser, text, ts: Date.now() };
   comments[taskId].push(newComment);
-  saveCommentToSheets(taskId, newComment);  // async — saves to Sheets
+  saveCommentToSheets(taskId, newComment);
+  logActivity('comment', taskId, text);
   inp.value = "";
   const listEl = document.getElementById("clist-" + taskId);
   if (listEl) listEl.innerHTML = renderCommentList(taskId);
@@ -1968,6 +2104,8 @@ function postComment(taskId) {
   }
 }
 
+
+function setTaskStatus(taskId,newStatus){var old=getTaskStatus(taskId);if(old===newStatus)return;if(newStatus==='done'){toggleTask(taskId);return;}taskState[taskId]=newStatus;saveTaskToSheets(taskId,newStatus);logActivity('status_change',taskId,newStatus);if(['jeff','terrell','jeremy'].includes(currentUser))buildNotifications();renderDashboard();}
 function deleteComment(taskId, idx) {
   if (!comments[taskId] || !comments[taskId][idx]) return;
   const c = comments[taskId][idx];
@@ -2037,6 +2175,260 @@ function renderCommentList(taskId) {
   }).join("");
 }
 
+// ── TIME TRACKING HELPERS ────────────────────────────────────
+function fmtDuration(ms) {
+  if (!ms || ms < 0) return '0m';
+  const totalMin = Math.floor(ms / 60000);
+  const h = Math.floor(totalMin / 60);
+  const m = totalMin % 60;
+  if (h === 0) return m + 'm';
+  return h + 'h ' + (m > 0 ? m + 'm' : '');
+}
+
+function totalTimeForTask(taskId) {
+  const entries = timeEntries[taskId] || [];
+  return entries.reduce((sum, e) => sum + (e.end && e.start ? e.end - e.start : 0), 0);
+}
+
+function startTimer(taskId) {
+  if (activeTimers[taskId]) return; // already running
+  activeTimers[taskId] = { start: Date.now() };
+  writeCache();
+  renderTimeSection(taskId);
+}
+
+function stopTimer(taskId) {
+  const timer = activeTimers[taskId];
+  if (!timer) return;
+  const entry = { author: currentUser, start: timer.start, end: Date.now(), note: '' };
+  delete activeTimers[taskId];
+  if (!timeEntries[taskId]) timeEntries[taskId] = [];
+  timeEntries[taskId].push(entry);
+  saveTimeEntryToSheets(taskId, entry);
+  renderTimeSection(taskId);
+}
+
+function deleteTimeEntry(taskId, idx) {
+  if (!timeEntries[taskId] || !timeEntries[taskId][idx]) return;
+  if (!confirm('Delete this time entry?')) return;
+  timeEntries[taskId].splice(idx, 1);
+  writeCache();
+  if (SHEETS_URL) {
+    sheetsCall({ action: 'deleteTimeEntry', taskId, data: JSON.stringify(timeEntries[taskId]) });
+  }
+  renderTimeSection(taskId);
+}
+
+function toggleManualForm(taskId) {
+  const form = document.getElementById('manual-form-' + taskId);
+  if (!form) return;
+  form.style.display = form.style.display === 'none' ? 'flex' : 'none';
+}
+
+function saveManualEntry(taskId) {
+  const startEl = document.getElementById('manual-start-' + taskId);
+  const endEl   = document.getElementById('manual-end-'   + taskId);
+  const noteEl  = document.getElementById('manual-note-'  + taskId);
+  if (!startEl || !endEl) return;
+  const start = new Date(startEl.value).getTime();
+  const end   = new Date(endEl.value).getTime();
+  if (!start || !end || end <= start) {
+    alert('End time must be after start time.');
+    return;
+  }
+  const entry = { author: currentUser, start, end, note: noteEl ? noteEl.value.trim() : '' };
+  if (!timeEntries[taskId]) timeEntries[taskId] = [];
+  timeEntries[taskId].push(entry);
+  saveTimeEntryToSheets(taskId, entry);
+  startEl.value = ''; endEl.value = ''; if (noteEl) noteEl.value = '';
+  document.getElementById('manual-form-' + taskId).style.display = 'none';
+  renderTimeSection(taskId);
+}
+
+function renderTimeSection(taskId) {
+  const wrap = document.getElementById('time-wrap-' + taskId);
+  if (!wrap) return;
+  wrap.innerHTML = buildTimeSectionInner(taskId);
+  // Update timer toggle label
+  const tog = document.getElementById('time-tog-' + taskId);
+  if (tog) {
+    const total = totalTimeForTask(taskId);
+    const running = !!activeTimers[taskId];
+    const cnt = (timeEntries[taskId] || []).length;
+    tog.innerHTML = buildTimeToggleLabel(taskId, total, running, cnt);
+  }
+}
+
+function buildTimeToggleLabel(taskId, total, running, cnt) {
+  const clockIcon = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
+  const runBadge = running
+    ? ' <span class="time-running-badge"><span class="time-running-dot"></span>Running</span>'
+    : '';
+  const label = cnt > 0 ? fmtDuration(total) : 'Track time';
+  return clockIcon + ' ' + label + runBadge;
+}
+
+function buildTimeSectionInner(taskId) {
+  const entries = timeEntries[taskId] || [];
+  const total   = totalTimeForTask(taskId);
+  const running = activeTimers[taskId];
+  const isOwner = TASKS.find(t => t.id === taskId)?.owner === currentUser;
+  const isAdmin = ['jeff','terrell','jeremy'].includes(currentUser);
+  if (!isAdmin) return '';
+
+  let html = '';
+
+  // Entry list
+  if (entries.length > 0) {
+    html += '<div style="margin-bottom:10px">';
+    entries.forEach((e, idx) => {
+      const dur  = e.end && e.start ? fmtDuration(e.end - e.start) : '—';
+      const who  = e.author ? e.author.charAt(0).toUpperCase() + e.author.slice(1) : '';
+      const when = e.start ? new Date(e.start).toLocaleDateString('en-US',{month:'short',day:'numeric',timeZone:'America/Chicago'}) : '';
+      const col  = (OWNER_COLORS[e.author] || OWNER_COLORS.jeff).dot;
+      html += '<div class="time-entry-row">'
+        + '<div class="avatar" style="width:20px;height:20px;font-size:0.55rem;background:' + col + ';flex-shrink:0">' + (who.charAt(0)||'?') + '</div>'
+        + '<div class="time-entry-label">' + who + (when ? ' &middot; ' + when : '') + (e.note ? ' &middot; <em>' + e.note + '</em>' : '') + '</div>'
+        + '<div class="time-entry-dur">' + dur + '</div>'
+        + '<button class="time-entry-del" onclick="deleteTimeEntry(\'' + taskId + '\',' + idx + ')" title="Delete entry">&#10005;</button>'
+        + '</div>';
+    });
+    html += '</div>';
+    html += '<div class="time-total-row"><span class="time-total-label">Total time</span><span class="time-total-val">' + fmtDuration(total) + '</span></div>';
+  } else {
+    html += '<div style="font-size:0.78rem;color:var(--ink3);font-style:italic;margin-bottom:8px">No time logged yet.</div>';
+  }
+
+  // Timer controls
+  html += '<div class="time-actions">';
+  if (running) {
+    const elapsed = fmtDuration(Date.now() - running.start);
+    html += '<button class="time-btn time-btn-stop" onclick="stopTimer(\'' + taskId + '\')">'
+      + '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>'
+      + ' Stop (' + elapsed + ')</button>';
+  } else {
+    html += '<button class="time-btn time-btn-start" onclick="startTimer(\'' + taskId + '\')">'
+      + '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>'
+      + ' Start timer</button>';
+  }
+  html += '<button class="time-btn time-btn-manual" onclick="toggleManualForm(\'' + taskId + '\')">'
+    + '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'
+    + ' Add manual entry</button>';
+  html += '</div>';
+
+  // Manual entry form
+  html += '<div class="time-manual-form" id="manual-form-' + taskId + '" style="display:none">'
+    + '<input type="datetime-local" id="manual-start-' + taskId + '" title="Start time">'
+    + '<span style="font-size:0.75rem;color:var(--ink3)">to</span>'
+    + '<input type="datetime-local" id="manual-end-' + taskId + '" title="End time">'
+    + '<input type="text" id="manual-note-' + taskId + '" placeholder="Note (optional)" style="padding:5px 8px;border:1.5px solid var(--line2);border-radius:var(--r-sm);font-size:0.78rem;font-family:inherit;color:var(--ink);background:var(--white);outline:none;min-width:130px">'
+    + '<button class="time-btn time-btn-start" onclick="saveManualEntry(\'' + taskId + '\')">Save</button>'
+    + '<button class="time-btn time-btn-manual" onclick="toggleManualForm(\'' + taskId + '\')">Cancel</button>'
+    + '</div>';
+
+  return html;
+}
+
+function renderTimeTracker(taskId) {
+  const isAdmin = ['jeff','terrell','jeremy'].includes(currentUser);
+  if (!isAdmin) return '';
+  const entries = timeEntries[taskId] || [];
+  const total   = totalTimeForTask(taskId);
+  const running = !!activeTimers[taskId];
+  const cnt     = entries.length;
+  const isOpen  = false;
+
+  return '<button class="time-toggle" id="time-tog-' + taskId + '" onclick="toggleTimeTracker(\'' + taskId + '\')">'
+    + buildTimeToggleLabel(taskId, total, running, cnt)
+    + '</button>'
+    + '<div class="time-tracker-wrap" id="time-drawer-' + taskId + '">'
+    + '<div class="time-tracker-inner" id="time-wrap-' + taskId + '">'
+    + buildTimeSectionInner(taskId)
+    + '</div></div>';
+}
+
+function toggleTimeTracker(taskId) {
+  const drawer = document.getElementById('time-drawer-' + taskId);
+  if (!drawer) return;
+  const open = drawer.classList.toggle('open');
+  // Refresh content when opening to show latest elapsed
+  if (open) renderTimeSection(taskId);
+}
+
+// Live elapsed update for running timers — ticks every 10 seconds
+setInterval(() => {
+  Object.keys(activeTimers).forEach(taskId => {
+    const tog = document.getElementById('time-tog-' + taskId);
+    if (tog) {
+      const total   = totalTimeForTask(taskId);
+      const running = !!activeTimers[taskId];
+      const cnt     = (timeEntries[taskId] || []).length;
+      tog.innerHTML = buildTimeToggleLabel(taskId, total, running, cnt);
+    }
+    // Also update stop button elapsed display if drawer is open
+    const wrap = document.getElementById('time-wrap-' + taskId);
+    const drawer = document.getElementById('time-drawer-' + taskId);
+    if (wrap && drawer && drawer.classList.contains('open')) {
+      renderTimeSection(taskId);
+    }
+  });
+}, 10000);
+
+// ── EXPORT FEATURE ────────────────────────────────────────────
+function exportTaskReport() {
+  const isAdmin = ['jeff','terrell','jeremy'].includes(currentUser);
+  if (!isAdmin) return;
+
+  const rows = [['Task ID','Task Name','Deliverable','Owner','Week','Due Date','Status','Total Time (min)','Total Time (hrs)','# Time Entries','Time Entry Details']];
+
+  TASKS.forEach(t => {
+    const status  = getTaskStatus(t.id);
+    const entries = timeEntries[t.id] || [];
+    const totalMs = totalTimeForTask(t.id);
+    const totalMin = Math.round(totalMs / 60000);
+    const totalHrs = (totalMs / 3600000).toFixed(2);
+    const due     = fmtDate(t.due);
+    const details = entries.map(e => {
+      const who   = e.author || '';
+      const dur   = e.end && e.start ? Math.round((e.end - e.start) / 60000) + 'min' : '';
+      const when  = e.start ? new Date(e.start).toLocaleDateString('en-US',{month:'short',day:'numeric',timeZone:'America/Chicago'}) : '';
+      return who + ' ' + when + ' ' + dur + (e.note ? ' (' + e.note + ')' : '');
+    }).join(' | ');
+
+    rows.push([
+      t.id,
+      t.name,
+      t.deliverable,
+      t.owner.charAt(0).toUpperCase() + t.owner.slice(1),
+      'Week ' + t.week,
+      due,
+      status.charAt(0).toUpperCase() + status.slice(1),
+      totalMin,
+      totalHrs,
+      entries.length,
+      details
+    ]);
+  });
+
+  // Build CSV
+  const csv = rows.map(r =>
+    r.map(cell => {
+      const s = String(cell).replace(/"/g, '""');
+      return (s.indexOf(',') >= 0 || s.indexOf('"') >= 0 || s.indexOf('\n') >= 0) ? '"' + s + '"' : s;
+    }).join(',')
+  ).join('\n');
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'StratusAi_Phase1_TimeReport_' + new Date().toISOString().slice(0,10) + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 function renderCommentSection(taskId) {
   const cnt = (comments[taskId] || []).length;
   const toggleLabel = cnt > 0 ? "View " + cnt + " comment" + (cnt !== 1 ? "s" : "") : "Add comment";
@@ -2104,6 +2496,34 @@ let taskState = {};
 let users = {};
 let notifPanelOpen = false;
 
+
+
+var activityFeed=[];var FEED_MAX=80;
+function logActivity(type,taskId,detail){
+  var task=null;for(var i=0;i<TASKS.length;i++){if(TASKS[i].id===taskId){task=TASKS[i];break;}}
+  activityFeed.unshift({type:type,actor:currentUser||'',taskId:taskId,taskName:task?task.name:taskId,deliverable:task?task.deliverable:'',detail:detail||'',ts:Date.now()});
+  if(activityFeed.length>FEED_MAX)activityFeed=activityFeed.slice(0,FEED_MAX);
+  try{var cc=JSON.parse(localStorage.getItem(LS_CACHE)||'{}');cc.activityFeed=activityFeed;localStorage.setItem(LS_CACHE,JSON.stringify(cc));}catch(e){}
+  var el=document.getElementById('activity-feed-list');if(el)el.innerHTML=renderFeedItems();
+}
+function fmtRelTime(ts){var d=Date.now()-ts;if(d<60000)return'just now';if(d<3600000)return Math.floor(d/60000)+'m ago';if(d<86400000)return Math.floor(d/3600000)+'h ago';return Math.floor(d/86400000)+'d ago';}
+function renderFeedItems(){
+  if(!activityFeed.length)return'<div class="feed-empty">No activity yet. Updates appear here as the team works.</div>';
+  var col=OWNER_COLORS;
+  return activityFeed.map(function(item){
+    var c=col[item.actor]||col.jeff;var d=item.actor?(item.actor.charAt(0).toUpperCase()+item.actor.slice(1)):'?';
+    var icon='',bc='',text='';
+    if(item.type==='task_done'){icon='&#10003;';bc='feed-badge-task';text='<strong>'+d+'</strong> completed <strong>'+item.taskName+'</strong>';}
+    else if(item.type==='task_undone'){icon='&#8617;';bc='feed-badge-status';text='<strong>'+d+'</strong> reopened <strong>'+item.taskName+'</strong>';}
+    else if(item.type==='status_change'){icon='&#9654;';bc='feed-badge-status';var sl={inprog:'In Progress',blocked:'Blocked',pending:'Pending Client',todo:'To Do'};text='<strong>'+d+'</strong> marked <strong>'+item.taskName+'</strong> as '+(sl[item.detail]||item.detail);}
+    else if(item.type==='comment'){icon='&#128172;';bc='feed-badge-comment';var p=item.detail?': <em>"'+item.detail.slice(0,55)+(item.detail.length>55?'&hellip;':'')+'"</em>':'';text='<strong>'+d+'</strong> commented on <strong>'+item.taskName+'</strong>'+p;}
+    else if(item.type==='approval'){icon='&#9989;';bc='feed-badge-task';text='<strong>'+d+'</strong> approved <strong>'+item.taskName+'</strong>';}
+    return'<div class="feed-item"><div class="feed-avatar" style="background:'+c.dot+'">'+d.charAt(0)+'</div><div class="feed-body"><div class="feed-text">'+text+'</div><div class="feed-meta">'+fmtRelTime(item.ts)+' &middot; '+(item.deliverable||'')+'</div></div><span class="feed-badge '+bc+'">'+icon+'</span></div>';
+  }).join('');
+}
+function renderActivityFeed(){
+  return'<div class="feed-wrap"><div class="feed-header"><div class="feed-title"><span class="feed-live-dot"></span> Team Activity</div><span style="font-size:0.72rem;color:var(--ink3)">'+activityFeed.length+' event'+(activityFeed.length!==1?'s':'')+'</span></div><div class="feed-list" id="activity-feed-list">'+renderFeedItems()+'</div></div>';
+}
 
 function getTaskStatus(taskId) {
   return taskState[taskId] || TASKS.find(t => t.id === taskId)?.status || 'todo';
@@ -2742,7 +3162,43 @@ function renderTerriDashboard() {
       `).join('')}
     </div>
   </div>
+
+  ${renderClientActionItems()}
+  ${renderThisWeekForClient()}
   `;
+}
+
+function renderClientActionItems(){
+  var pending=TASKS.filter(function(t){return getTaskStatus(t.id)==='pending';});
+  if(!pending.length)return'';
+  var approvals={};try{approvals=JSON.parse(localStorage.getItem('stratus_v1_approvals')||'{}');}catch(e){}
+  var wi='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+  var ci='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
+  return'<div class="section-card" style="margin-bottom:1.25rem;border-color:rgba(135,85,0,.3)"><div class="section-card-header" style="background:var(--warn-bg)"><div class="section-card-title" style="color:var(--warn)">'+wi+'&nbsp; Needs Your Input ('+pending.length+')</div><div style="font-size:0.75rem;color:var(--warn)">These items are waiting on you to unblock</div></div>'
+    +pending.map(function(t){var app=!!approvals[t.id];var own=t.owner.charAt(0).toUpperCase()+t.owner.slice(1);var oc='approveItem("'+t.id+'")';return'<div class="pending-item"><div class="pending-icon waiting">'+ci+'</div><div style="flex:1"><div class="pending-task-name">'+t.name+'</div><div class="pending-task-meta">'+t.deliverable+' &middot; Owner: '+own+' &middot; Due '+fmtDate(t.due)+'</div><button class="approval-btn'+(app?' approved':'')+'" onclick="'+oc+'">'+( app?'&#10003; Approved':'Approve &amp; unblock')+'</button></div></div>';}).join('')
+    +'</div>';
+}
+
+function approveItem(taskId){
+  var a={};try{a=JSON.parse(localStorage.getItem('stratus_v1_approvals')||'{}');}catch(e){}
+  a[taskId]=Date.now();localStorage.setItem('stratus_v1_approvals',JSON.stringify(a));
+  logActivity('approval',taskId,'');renderDashboard();
+}
+
+function renderThisWeekForClient(){
+  var w=getCurrentWeek();var wt=TASKS.filter(function(t){return t.week===w;});if(!wt.length)return'';
+  var done=wt.filter(function(t){return getTaskStatus(t.id)==='done';});
+  var active=wt.filter(function(t){var s=getTaskStatus(t.id);return s==='inprog'||s==='todo';});
+  var blk=wt.filter(function(t){var s=getTaskStatus(t.id);return s==='blocked'||s==='pending';});
+  var pi='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+  var chk='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+  var bi='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>';
+  function row(t,ico,cls,strike){return'<div class="pending-item"><div class="pending-icon '+cls+'">'+ico+'</div><div><div class="pending-task-name"'+(strike?' style="text-decoration:line-through;color:var(--ink3)"':'')+'>'+t.name+'</div><div class="pending-task-meta">'+t.deliverable+(strike?'':' &middot; Due '+fmtDate(t.due))+'</div></div></div>';}
+  return'<div class="section-card"><div class="section-card-header"><div class="section-card-title">This week &mdash; Week '+w+'</div><span class="task-status-badge status-inprog">'+done.length+'/'+wt.length+' done</span></div>'
+    +(blk.length?'<div class="client-section-label">&#9888; Blocked or waiting ('+blk.length+')</div>'+blk.map(function(t){return row(t,bi,'blocked',false);}).join(''):'')
+    +(active.length?'<div class="client-section-label">In progress</div>'+active.slice(0,5).map(function(t){return row(t,pi,'active',false);}).join(''):'')
+    +(done.length?'<div class="client-section-label">Completed this week</div>'+done.slice(0,5).map(function(t){return row(t,chk,'complete',true);}).join(''):'')
+    +'</div>';
 }
 
 function getCurrentWeek() {
@@ -2826,6 +3282,8 @@ function renderAdminDashboard(uname) {
     </div>
   </div>
 
+  ${renderActivityFeed()}
+
   <!-- Tabs -->
   <div class="tab-row">
     <button class="tab-btn ${adminActiveTab==='my'?'active':''}" onclick="switchTab('my')">My tasks</button>
@@ -2881,7 +3339,7 @@ function renderMyTasks(uname) {
         <div>Due date</div>
         <div>Status</div>
       </div>
-      ${tasks.map(t => renderTaskRow(t) + renderCommentSection(t.id)).join('')}
+      ${tasks.map(t => renderTaskRow(t) + renderTimeTracker(t.id) + renderCommentSection(t.id)).join('')}
     </div>`;
   }).join('');
 }
@@ -2916,7 +3374,7 @@ function renderAllTasks() {
         <div>Due date</div>
         <div>Status</div>
       </div>
-      ${tasks.map(t => renderTaskRow(t, true) + renderCommentSection(t.id)).join('')}
+      ${tasks.map(t => renderTaskRow(t, true) + renderTimeTracker(t.id) + renderCommentSection(t.id)).join('')}
     </div>`;
   }).join('');
 }
@@ -2927,10 +3385,11 @@ function renderTaskRow(task, showOwner = false) {
   const ds = isDone ? 'ok' : dayStatus(task.due);
   const col = OWNER_COLORS[task.owner];
 
-  const statusLabel = { todo: 'To do', inprog: 'In progress', done: 'Complete', behind: 'Behind', 'at-risk': 'At risk' };
-  const statusClass = { todo: 'status-todo', inprog: 'status-inprog', done: 'status-done', behind: 'status-behind', 'at-risk': 'status-atrisk' };
-
-  const effectiveStatus = isDone ? 'done' : (ds === 'behind' ? 'behind' : (ds === 'at-risk' ? 'at-risk' : status));
+  var isAdmin=['jeff','terrell','jeremy'].includes(currentUser);
+  const statusLabel={todo:'To do',inprog:'In Progress',done:'Complete',blocked:'Blocked',pending:'Pending Client',behind:'Behind','at-risk':'At risk'};
+  const statusClass={todo:'status-todo',inprog:'status-inprog',done:'status-done',blocked:'status-behind',pending:'status-atrisk',behind:'status-behind','at-risk':'status-atrisk'};
+  const dispStatus=isDone?'done':status;
+  const effectiveStatus=isDone?'done':(ds==='behind'?'behind':(ds==='at-risk'?'at-risk':status));
 
   return `
   <div class="task-row ${isDone ? 'completed' : ''}">
@@ -2953,9 +3412,9 @@ function renderTaskRow(task, showOwner = false) {
       ${ds === 'behind' && !isDone ? '⚠ ' : ''}${fmtDate(task.due)}
     </div>
     <div>
-      <span class="task-status-badge ${statusClass[effectiveStatus] || 'status-todo'}">
-        ${statusLabel[effectiveStatus] || 'To do'}
-      </span>
+      ${isAdmin
+        ? `<select id="status-sel-${task.id}" class="status-select ${statusClass[dispStatus]||'status-todo'}" onchange="setTaskStatus('${task.id}',this.value)">${[{v:'todo',l:'To do'},{v:'inprog',l:'In Progress'},{v:'blocked',l:'Blocked'},{v:'pending',l:'Pending Client'},{v:'done',l:'Complete'}].map(o=>`<option value="${o.v}"${dispStatus===o.v?' selected':''}>${o.l}</option>`).join('')}</select>`
+        : `<span class="task-status-badge ${statusClass[dispStatus]||'status-todo'}">${statusLabel[dispStatus]||'To do'}</span>`}
     </div>
   </div>`;
 }
@@ -2984,7 +3443,8 @@ function toggleTask(taskId) {
   const current = getTaskStatus(taskId);
   const newStatus = current === 'done' ? 'todo' : 'done';
   taskState[taskId] = newStatus;
-  saveTaskToSheets(taskId, newStatus);  // async — saves to Sheets
+  saveTaskToSheets(taskId, newStatus);
+  logActivity(newStatus==='done'?'task_done':'task_undone', taskId, newStatus);
 
   if (['jeff','terrell','jeremy'].includes(currentUser)) {
     buildNotifications();
