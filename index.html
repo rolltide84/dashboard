@@ -1869,7 +1869,7 @@ let taskCommentsOpen = {};
 // GOOGLE SHEETS BACKEND
 // ══════════════════════════════════════════
 // Paste your Apps Script Web App URL here after deploying:
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwlA8Xc3fynv2oNaCchUSiCvrcPqbbzK-CzQ0xqtsiwHNkixmTb947nK_Lj5t6NM8Ql/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwk2-6JXVTPfOe1s9pjwL9iB9W0VHrYdM9aYOW2xTC7uQbEjuBMNl2pwb09Tgl19bAj/exec';
 
 // localStorage keys — used ONLY for session (current user) and
 // as an offline cache so the UI feels instant on repeat visits.
@@ -2185,6 +2185,26 @@ function fmtDuration(ms) {
   return h + 'h ' + (m > 0 ? m + 'm' : '');
 }
 
+function totalProjectTime() {
+  // Sum all time entries across every task
+  var totalMs = 0;
+  TASKS.forEach(function(t) { totalMs += totalTimeForTask(t.id); });
+  return totalMs;
+}
+
+function fmtProjectTime(ms) {
+  // Returns "4h 22m" or "2d 1h" depending on scale
+  if (!ms || ms <= 0) return '0m';
+  var totalMin = Math.floor(ms / 60000);
+  var h = Math.floor(totalMin / 60);
+  var m = totalMin % 60;
+  if (h === 0) return m + 'm';
+  if (h < 24)  return h + 'h' + (m > 0 ? ' ' + m + 'm' : '');
+  var d = Math.floor(h / 24);
+  var rh = h % 24;
+  return d + 'd' + (rh > 0 ? ' ' + rh + 'h' : '');
+}
+
 function totalTimeForTask(taskId) {
   const entries = timeEntries[taskId] || [];
   return entries.reduce((sum, e) => sum + (e.end && e.start ? e.end - e.start : 0), 0);
@@ -2379,54 +2399,100 @@ function exportTaskReport() {
   const isAdmin = ['jeff','terrell','jeremy'].includes(currentUser);
   if (!isAdmin) return;
 
-  const rows = [['Task ID','Task Name','Deliverable','Owner','Week','Due Date','Status','Total Time (min)','Total Time (hrs)','# Time Entries','Time Entry Details']];
+  const statusLabels = {todo:'To Do',inprog:'In Progress',done:'Complete',blocked:'Blocked',pending:'Pending Client'};
+  const today = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',timeZone:'America/Chicago'});
+  const exportedBy = currentUser.charAt(0).toUpperCase() + currentUser.slice(1);
 
-  TASKS.forEach(t => {
-    const status  = getTaskStatus(t.id);
+  const totalTasks   = TASKS.length;
+  const doneTasks    = TASKS.filter(t => getTaskStatus(t.id) === 'done').length;
+  const inProgTasks  = TASKS.filter(t => getTaskStatus(t.id) === 'inprog').length;
+  const blockedTasks = TASKS.filter(t => getTaskStatus(t.id) === 'blocked').length;
+  const pendingTasks = TASKS.filter(t => getTaskStatus(t.id) === 'pending').length;
+  const todoTasks    = TASKS.filter(t => getTaskStatus(t.id) === 'todo').length;
+  const allEntries   = Object.values(timeEntries).flat();
+  const totalTrackedMs  = allEntries.reduce((s,e) => s + (e.end && e.start ? e.end - e.start : 0), 0);
+  const totalTrackedHrs = (totalTrackedMs / 3600000).toFixed(1);
+  const pctComplete  = Math.round((doneTasks / totalTasks) * 100);
+
+  const csvCell = val => {
+    const s = String(val === null || val === undefined ? '' : val).replace(/"/g,'""');
+    return (s.includes(',') || s.includes('"') || s.includes('\n')) ? '"'+s+'"' : s;
+  };
+  const csvRow = arr => arr.map(csvCell).join(',');
+
+  const entryDetails = entries => entries.map(e => {
+    const who  = e.author ? e.author.charAt(0).toUpperCase()+e.author.slice(1) : '';
+    const dur  = e.end && e.start ? Math.round((e.end-e.start)/60000)+'min' : '';
+    const when = e.start ? new Date(e.start).toLocaleDateString('en-US',{month:'short',day:'numeric',timeZone:'America/Chicago'}) : '';
+    return [who,when,dur,e.note||''].filter(Boolean).join(' ');
+  }).join(' | ');
+
+  const taskRow = (t, statusOverride) => {
     const entries = timeEntries[t.id] || [];
-    const totalMs = totalTimeForTask(t.id);
-    const totalMin = Math.round(totalMs / 60000);
-    const totalHrs = (totalMs / 3600000).toFixed(2);
-    const due     = fmtDate(t.due);
-    const details = entries.map(e => {
-      const who   = e.author || '';
-      const dur   = e.end && e.start ? Math.round((e.end - e.start) / 60000) + 'min' : '';
-      const when  = e.start ? new Date(e.start).toLocaleDateString('en-US',{month:'short',day:'numeric',timeZone:'America/Chicago'}) : '';
-      return who + ' ' + when + ' ' + dur + (e.note ? ' (' + e.note + ')' : '');
-    }).join(' | ');
-
-    rows.push([
-      t.id,
-      t.name,
-      t.deliverable,
-      t.owner.charAt(0).toUpperCase() + t.owner.slice(1),
-      'Week ' + t.week,
-      due,
-      status.charAt(0).toUpperCase() + status.slice(1),
-      totalMin,
-      totalHrs,
+    const ms  = totalTimeForTask(t.id);
+    const status = statusOverride || getTaskStatus(t.id);
+    return csvRow([
+      t.id, t.name, t.deliverable,
+      t.owner.charAt(0).toUpperCase()+t.owner.slice(1),
+      'Week '+t.week, fmtDate(t.due),
+      statusLabels[status]||status,
+      (ms/3600000).toFixed(2),
+      Math.round(ms/60000),
       entries.length,
-      details
+      entryDetails(entries)
     ]);
+  };
+
+  const TASK_HEADERS = csvRow(['Task ID','Task Name','Deliverable','Owner','Week','Due Date','Status','Time (hrs)','Time (min)','# Entries','Entry Details']);
+
+  const rows = [];
+
+  // ── Report header ─────────────────────────────────────────────
+  rows.push(csvRow(['StratusAi LLC — Phase 1 Project Report']));
+  rows.push(csvRow(['Client: Levitate Logic','','Exported by: '+exportedBy,'','Date: '+today]));
+  rows.push('');
+
+  // ── Project summary ───────────────────────────────────────────
+  rows.push(csvRow(['PROJECT SUMMARY']));
+  rows.push(csvRow(['Total Tasks',totalTasks,'Complete',doneTasks,'Overall',pctComplete+'%']));
+  rows.push(csvRow(['In Progress',inProgTasks,'Blocked',blockedTasks,'Pending Client',pendingTasks]));
+  rows.push(csvRow(['To Do',todoTasks,'','','','']));
+  rows.push(csvRow(['Total Time Tracked',totalTrackedHrs+' hrs','Total Entries',allEntries.length,'','']));
+  rows.push('');
+
+  // ── Completed tasks ───────────────────────────────────────────
+  const done = TASKS.filter(t => getTaskStatus(t.id) === 'done');
+  rows.push(csvRow(['COMPLETED TASKS ('+done.length+')']));
+  rows.push(TASK_HEADERS);
+  done.forEach(t => rows.push(taskRow(t,'done')));
+  rows.push('');
+
+  // ── Incomplete tasks ──────────────────────────────────────────
+  const incomplete = TASKS.filter(t => getTaskStatus(t.id) !== 'done');
+  rows.push(csvRow(['INCOMPLETE TASKS ('+incomplete.length+')']));
+  rows.push(TASK_HEADERS);
+  incomplete.forEach(t => rows.push(taskRow(t)));
+  rows.push('');
+
+  // ── Time by deliverable ───────────────────────────────────────
+  rows.push(csvRow(['TIME BY DELIVERABLE']));
+  rows.push(csvRow(['Deliverable','Done/Total','Time Tracked (hrs)','% Complete']));
+  const delivs = [...new Set(TASKS.map(t => t.deliverable))];
+  delivs.forEach(d => {
+    const dt   = TASKS.filter(t => t.deliverable === d);
+    const dDone= dt.filter(t => getTaskStatus(t.id) === 'done').length;
+    const dMs  = dt.reduce((s,t) => s+totalTimeForTask(t.id), 0);
+    rows.push(csvRow([d, dDone+'/'+dt.length, (dMs/3600000).toFixed(2), Math.round(dDone/dt.length*100)+'%']));
   });
 
-  // Build CSV
-  const csv = rows.map(r =>
-    r.map(cell => {
-      const s = String(cell).replace(/"/g, '""');
-      return (s.indexOf(',') >= 0 || s.indexOf('"') >= 0 || s.indexOf('\n') >= 0) ? '"' + s + '"' : s;
-    }).join(',')
-  ).join('\n');
-
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const csv  = rows.join('\n');
+  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
-  a.href     = url;
-  a.download = 'StratusAi_Phase1_TimeReport_' + new Date().toISOString().slice(0,10) + '.csv';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  a.href = url;
+  a.download = 'StratusAi_Levitate_Logic_Report_' + new Date().toISOString().slice(0,10) + '.csv';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
 }
 
 function renderCommentSection(taskId) {
@@ -3119,6 +3185,12 @@ function renderTerriDashboard() {
       <div class="metric-value" style="color:${m.behind > 0 ? 'var(--danger)' : 'var(--success)'}">${m.behind > 0 ? 'Check' : 'Yes'}</div>
       <span class="metric-pill ${m.behind > 0 ? 'pill-danger' : 'pill-success'}">${m.behind > 0 ? m.behind + ' overdue' : 'All on track'}</span>
     </div>
+    <div class="metric-card">
+      <div class="metric-label">Time Invested</div>
+      <div class="metric-value" style="color:var(--brand);font-size:1.5rem">${fmtProjectTime(totalProjectTime())}</div>
+      <div class="metric-sub">logged by the StratusAi team</div>
+      <span class="metric-pill pill-info">Project total</span>
+    </div>
   </div>
 
   <div class="progress-section">
@@ -3254,6 +3326,12 @@ function renderAdminDashboard(uname) {
       <div class="metric-label">Due Soon</div>
       <div class="metric-value" style="color:${myM.atrisk > 0 ? 'var(--warn)' : 'var(--text3)'}">${myM.atrisk}</div>
       <span class="metric-pill ${myM.atrisk > 0 ? 'pill-warn' : 'pill-info'}">${myM.atrisk > 0 ? 'Within 2 days' : 'All clear'}</span>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Time Tracked</div>
+      <div class="metric-value" style="color:var(--brand);font-size:1.5rem">${fmtProjectTime(totalProjectTime())}</div>
+      <div class="metric-sub">${Object.values(timeEntries).flat().length} entr${Object.values(timeEntries).flat().length === 1 ? 'y' : 'ies'} logged</div>
+      <span class="metric-pill pill-info">Project total</span>
     </div>
   </div>
 
